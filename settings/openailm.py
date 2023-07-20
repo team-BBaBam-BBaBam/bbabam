@@ -1,7 +1,7 @@
 import openai
 
 from settings.environments import Openai_keys
-from settings.environments import NotProvidedModelError
+from settings.errors import NotProvidedModelError
 
 CHATGPT_3_MODEL = "gpt-3.5-turbo"
 CHATGPT_3_MODEL_16K = "gpt-3.5-turbo-16k"
