@@ -1,7 +1,4 @@
-# Project Title
-
-BBa-Bam
-
+# BBa-Bam
 
 ### Prerequisites
 
