@@ -1,6 +1,6 @@
 import openai
 
-from settings.environments import Openai_keys
+from settings.environments import OpenAIKeys
 from settings.errors import NotProvidedModelError
 
 CHATGPT_3_MODEL = "gpt-3.5-turbo"
@@ -14,7 +14,7 @@ CHATGPT_4_MODEL_32K_STABLE = "gpt-4-32k-0613"
 WORD_EMBEDDING_MODEL = "text-embedding-ada-002"
 
 
-class Openai_chat_model: #밑에 모델을 편하게 선택할 수 있는 get_model_name 클래스가 있지만,
+class OpenAIChatModel: #밑에 모델을 편하게 선택할 수 있는 get_model_name 클래스가 있지만,
                     #여기서도 바로 값을 넣어 api를 구동할 수 있음.
                     #알맞은 모델이름을 넣고 클래스 선언.
                     #함수들에 딕셔너리 형태의 메세지를 넣으면 api값을 받아옴.
@@ -24,7 +24,7 @@ class Openai_chat_model: #밑에 모델을 편하게 선택할 수 있는 get_mo
                  top_p=None, n=None, stream=None, stop=None,
                  max_tokens=None, presence_penalty=None, 
                  frequency_penalty=None, logit_bias=None, user=None):
-        openai_keys = Openai_keys()
+        openai_keys = OpenAIKeys()
         openai.api_key = openai_keys.get_key()
         self.model = model
         # self.functions = functions
@@ -58,10 +58,10 @@ class Openai_chat_model: #밑에 모델을 편하게 선택할 수 있는 get_mo
         return completion.choices[0].message
 
 
-class Openai_embedding_model: #워드임베딩 api는 하나밖에 없으므로 모델명은 인풋으로 받지 않음.
+class OpenAIEmbeddingModel: #워드임베딩 api는 하나밖에 없으므로 모델명은 인풋으로 받지 않음.
     # 인풋문장을 넣어주면 출력되는 get_embedding 함수가 있음.
     def __init__(self):
-        openai_keys = Openai_keys()
+        openai_keys = OpenAIKeys()
         openai.api_key = openai_keys.get_key()
 
     def get_embeddings(self, input):
@@ -72,7 +72,7 @@ class Openai_embedding_model: #워드임베딩 api는 하나밖에 없으므로 
         return embeddings
 
 
-class Get_model_name: # 모델을 편하게 선택하기 위한 클래스
+class GetModelName: # 모델을 편하게 선택하기 위한 클래스
                     # model의 가능한 인풋은 gpt-3.5, gpt-4, word-embedding 중에 하나.
     def __init__(self):
         pass

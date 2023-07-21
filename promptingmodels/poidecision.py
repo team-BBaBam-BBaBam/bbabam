@@ -1,10 +1,10 @@
 import settings.openailm as lm
 import re
 
-class poi_decision_maker:
+class PoiDecisionMaker:
     def __init__(self):
-        self.get_model_name = lm.Get_model_name()
-        self.chatmodel = lm.Openai_chat_model(self.get_model_name.model_val(model = 'gpt-3.5', stable = 'yes'))
+        self.get_model_name = lm.GetModelName()
+        self.chatmodel = lm.OpenAIChatModel(self.get_model_name.model_val(model = 'gpt-3.5', stable = 'yes'))
         print(self.chatmodel)
     
     def decision_making(self, keyword, user_input):
