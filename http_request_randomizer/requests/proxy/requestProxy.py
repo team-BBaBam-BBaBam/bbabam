@@ -119,8 +119,6 @@ class RequestProxy:
                     session = requests.Session()
                     response = session.get(url, headers=headers, data=data, params=params, timeout=req_timeout, proxies=proxies, verify=False)
 
-                    print(5)
-
                     self.logger.debug("Using headers: {0}".format(str(headers)))
                     self.logger.debug("Using proxy: {0}".format(str(self.memory['address'][i])))
                     self.logger.debug(1)
@@ -140,7 +138,7 @@ class RequestProxy:
                     continue
                 
                 else:
-                    print(self.memory['address'][i])
+                    print("Using API"+ self.memory['address'][i])
                     with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'w') as make_file:
                             json.dump(self.memory, make_file, indent="\t")
                     return {'http': 'http://%s' % self.memory['address'][i]}
