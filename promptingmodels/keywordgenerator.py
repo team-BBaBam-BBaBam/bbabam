@@ -15,6 +15,9 @@ class KeywordGenerator:
                 You should give keywords by list annotation. This is an example: ["keyword1", "keyword2", "keyword3..."]
 
                 You should result in about five keywords to search, but you cannot give below 3 keywords while above 10 keywords.
+
+                And if you think you cannot provide your answer because it is controversal or like something, you should just return ['Improper Question'].
+                Moreover, if you decide the question is not involved with travel topic, you can also result ['Improper Question'].
                 """
 
         request_msg = [
