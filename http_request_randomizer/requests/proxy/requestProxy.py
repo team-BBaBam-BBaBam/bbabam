@@ -4,6 +4,8 @@ import random
 import sys
 import time
 
+import time
+
 import json
 
 import requests
@@ -20,6 +22,8 @@ from http_request_randomizer.requests.parsers.RebroWeeblyParser import RebroWeeb
 from http_request_randomizer.requests.parsers.PremProxyParser import PremProxyParser
 from http_request_randomizer.requests.parsers.SslProxyParser import SslProxyParser
 from http_request_randomizer.requests.useragent.userAgent import UserAgentManager
+
+from requests.adapters import HTTPAdapter, Retry
 
 __author__ = 'pgaref'
 sys.path.insert(0, os.path.abspath('../../../../'))
@@ -96,13 +100,11 @@ class RequestProxy:
     # Proxy format:
     # http://<USERNAME>:<PASSWORD>@<IP-ADDR>:<PORT>
     #####
-    def generate_proxied_request(self, url, method="GET", params={}, data={}, headers={}, req_timeout=30):
-            for i in range(len(self.memory)):
-                with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'r') as f:
-                    self.memory = json.load(f)
-                if self.memory['usable'] == 'false':
-                    pass
-
+    def generate_proxied_request(self, url, params={}, data={}, headers={}, req_timeout=7):
+            for i in range(len(self.memory['address'])):
+                if self.memory['usable'][i] == 'false':
+                    continue
+                
                 try:
                     req_headers = dict(params.items())
                     req_headers_random = dict(self.generate_random_request_headers().items())
@@ -113,35 +115,32 @@ class RequestProxy:
                                 "http": "http://{0}".format(self.memory['address'][i]),
                                 "https": "https://{0}".format(self.memory['address'][i])
                             }
-                    request = requests.request(method, url, headers=headers, data=data, params=params, timeout=req_timeout, proxies=proxies)
+                    
+                    session = requests.Session()
+                    response = session.get(url, headers=headers, data=data, params=params, timeout=req_timeout, proxies=proxies, verify=False)
+
+                    print(5)
 
                     self.logger.debug("Using headers: {0}".format(str(headers)))
                     self.logger.debug("Using proxy: {0}".format(str(self.memory['address'][i])))
+                    self.logger.debug(1)
                     
-                    if request is not None:
-                        self.memory['address'].insert(0, self.memory['address'][i])
-                        self.memory['usable'][i] = 'true'
-                        with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'w') as make_file:
-                            json.dump(self.memory, make_file, indent="\t")
-                        return {'http': 'http://%s' % self.memory['address'][i]}
-                        
-                    else:
-                        self.memory['usable'][i] = 'false'
-                        with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'w') as make_file:
-                            json.dump(self.memory, make_file, indent="\t")
+                    if response.status_code == 200:
+                        if self.memory['address'][0] != self.memory['address'][i]:
+                            self.memory['type'].insert(0, 'http')
+                            self.memory['address'].insert(0, self.memory['address'][i])
+                            self.memory['usable'].insert(0, 'true')
 
                 except ConnectionError:
                     self.logger.debug("Proxy unreachable - Removed Straggling proxy: {0} PL Size = {1}".format(
                         self.memory['address'][i], len(self.proxy_list)))
-
-                except ReadTimeout:
-                    self.logger.debug("Read timed out - Removed Straggling proxy: {0} PL Size = {1}".format(
-                        self.memory['address'][i], len(self.proxy_list)))
-            
-                except ChunkedEncodingError:
-                    self.logger.debug("Wrong server chunked encoding - Removed Straggling proxy: {0} PL Size = {1}".format(
-                        self.memory['address'][i], len(self.proxy_list)))
-                    
-                except TooManyRedirects:
-                    self.logger.debug("Too many redirects - Removed Straggling proxy: {0} PL Size = {1}".format(
-                        self.memory['address'][i], len(self.proxy_list)))
+                    self.memory['usable'][self.memory['address'] == self.memory['address'][i]] = 'false'
+                    with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'w') as make_file:
+                            json.dump(self.memory, make_file, indent="\t")
+                    continue
+                
+                else:
+                    print(self.memory['address'][i])
+                    with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'w') as make_file:
+                            json.dump(self.memory, make_file, indent="\t")
+                    return {'http': 'http://%s' % self.memory['address'][i]}
