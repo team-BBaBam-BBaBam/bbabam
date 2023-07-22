@@ -1,4 +1,4 @@
-import crawlingmodels.Modules.TripBuilder as TB
+import crawlingmodels.Modules.TripBuilderCrawler as TB
 import warnings
 import time
 
@@ -43,7 +43,7 @@ class Crawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로�
     s = time.time()
 
     for i in range(len(self.keywords)):
-      try:
+      #try:
         conts = []; cont_lst = []
         conts, tot_num = self.Multi_Crawler(self.keywords[i],50)
         for cont in conts:
@@ -53,7 +53,7 @@ class Crawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로�
         t = time.time()
         times = (t-s)*(len(self.keywords)-i-1)/(i+1)
         print(f"\r[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",end="")
-      except:
-        pass
-      time.sleep(5)
+      #except:
+      #  pass
+        time.sleep(1)
     return {"Keywords": self.keywords, "Contents": self.contents}
