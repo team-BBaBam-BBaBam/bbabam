@@ -10,9 +10,11 @@ class KeywordGenerator:
     def key_gen(self, user_input):
         note = """You will be given 'request in natural language' which including information about user wants to know. You should generate suitable appropriate keyword that could search well. The keyword should be in Korean words and it can include proper nouns. User is foreigner who is planning to go on a trip in South Korea.
 
-                If the input is dealing with information about Kyongbokgung, you should make a keyword such as '경복궁'. You shouldn't ignore some words are proper nouns, it can be a very important information to focus on by users.
+                If the input is dealing with information about Kyongbokgung, you should make a keyword such as '경복궁'. You shouldn't ignore some words are proper nouns, it can be a very important information to focus on by users. And results should be detailed and specific for user input.
 
-                You should result in about 5 keywords to search, but you cannot give below 3 keywords while above 10 keywords.
+                You should give keywords by list annotation. This is an example: ["keyword1", "keyword2", "keyword3..."]
+
+                You should result in about five keywords to search, but you cannot give below 3 keywords while above 10 keywords.
                 """
 
         request_msg = [
@@ -21,4 +23,5 @@ class KeywordGenerator:
         ]
 
         reply = self.chatmodel.get_reply(request_msg)['content']
-        return reply
+        output = reply[2:-2].split('", "')
+        return output

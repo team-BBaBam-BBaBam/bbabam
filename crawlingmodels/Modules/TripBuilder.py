@@ -9,6 +9,7 @@ import urllib.request
 import json
 import re
 import time
+from user_agent import generate_user_agent, generate_navigator
 
 # from selenium import webdriver
 # from selenium.webdriver.common.by import By
@@ -67,9 +68,10 @@ class NaverCrawler:
         start = 1
         size = num
         url = f"https://openapi.naver.com/v1/search/blog?query={Search}&start={start}&display={size}"  # json 결과
-
+        
         for API in self.API_keys:
-            request = urllib.request.Request(url)
+            headers = {'User-Agent': generate_user_agent(os='win', device_type='desktop')}
+            request = urllib.request.Request(url, headers=headers)
             request.add_header("X-Naver-Client-Id", API["client_id"])
             request.add_header("X-Naver-Client-Secret", API["client_secret"])
             try:
