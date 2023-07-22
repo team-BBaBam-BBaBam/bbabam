@@ -124,10 +124,9 @@ class RequestProxy:
                     self.logger.debug(1)
                     
                     if response.status_code == 200:
-                        if self.memory['address'][0] != self.memory['address'][i]:
-                            self.memory['type'].insert(0, 'http')
-                            self.memory['address'].insert(0, self.memory['address'][i])
-                            self.memory['usable'].insert(0, 'true')
+                        self.memory['type'].insert(0, 'http')
+                        self.memory['address'].insert(0, self.memory['address'][i])
+                        self.memory['usable'].insert(0, 'true')
 
                 except ConnectionError:
                     self.logger.debug("Proxy unreachable - Removed Straggling proxy: {0} PL Size = {1}".format(
@@ -138,7 +137,7 @@ class RequestProxy:
                     continue
                 
                 else:
-                    print("Using API"+ self.memory['address'][i])
+                    print("Using IP: "+ self.memory['address'][i])
                     with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'w') as make_file:
                             json.dump(self.memory, make_file, indent="\t")
                     return {'http': 'http://%s' % self.memory['address'][i]}
