@@ -1,5 +1,5 @@
-from settings.openailm import Openai_chat_model
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Union
+from settings.openailm import Openai_chat_model, CHATGPT_4_MODEL_STABLE, CHATGPT_3_MODEL_STABLE
 
 sys_prompt = '''You will be given 'search keyword' to get information.  Customers want answers to their search keywords.  The attendant will be responsible for providing answers to the customer.  You must write down the Instructions to be delivered to the attendant.
  
@@ -33,8 +33,12 @@ class RestrictionInformationGenerator:
     사용자가 입력한 질의문을 바탕으로, 이에 대한 제한사항(Instruction) 글을 생성하는 모듈
     '''
 
-    def __init__(self, openai_chat_model: Openai_chat_model):
-        self.__openai_chat_model = openai_chat_model
+    def __init__(self, use_gpt3: bool = False, openai_chat_model: Union[Openai_chat_model, None] = None):
+        if openai_chat_model is None:
+            self.__openai_chat_model = Openai_chat_model(
+                CHATGPT_3_MODEL_STABLE if use_gpt3 else CHATGPT_4_MODEL_STABLE)
+        else:
+            self.__openai_chat_model = openai_chat_model
 
     def __create_messages(self, user_input: str) -> List[Dict[str, str]]:
         return [

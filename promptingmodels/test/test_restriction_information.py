@@ -20,9 +20,7 @@ def test_restriction_gen(user_input, gpt3=False):
     if user_input is None:
         user_input = "top 5 restaurants in seoul except noodle"
 
-    openai_chat_model = Openai_chat_model(
-        CHATGPT_3_MODEL_STABLE if gpt3 else CHATGPT_4_MODEL_STABLE)
-    res_inform_gen = RestrictionInformationGenerator(openai_chat_model)
+    res_inform_gen = RestrictionInformationGenerator(use_gpt3=gpt3)
 
     # Show Loading Spinner
     with yaspin(text="Generating...", spinner="dots") as spinner:
