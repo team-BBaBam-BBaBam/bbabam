@@ -18,6 +18,7 @@ class KeywordGenerator:
 
                 And if you think you cannot provide your answer because it is controversal or like something, you should just return ['Improper Question'].
                 Moreover, if you decide the question is not involved with travel topic, you can also result ['Improper Question'].
+                But you should remind that travel topic refers to not only place recommendation, POI information, and tourism market, but also all things occured in travel cycle such as tip culture, stroller rental, and car rental, etc.
                 """
 
         request_msg = [

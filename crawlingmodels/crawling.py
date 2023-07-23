@@ -6,10 +6,9 @@ import multiprocessing as mp
 
 warnings.filterwarnings(action='ignore')
 
-class Crawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로그 글 수집
+class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로그 글 수집
   def __init__(self):
     self.crawler = TB.NaverCrawler()
-    self.poi_crawler = TB.KakaoCrawler()
     self.keywords = []
     self.contents = []
   
@@ -57,3 +56,10 @@ class Crawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로�
       #  pass
         time.sleep(1)
     return {"Keywords": self.keywords, "Contents": self.contents}
+  
+
+class POICrawl:
+  def __init__(self):
+    self.crawler = TB.KakaoCrawler()
+    self.keywords = []
+    self.contents = []
