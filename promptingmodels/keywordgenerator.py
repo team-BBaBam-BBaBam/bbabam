@@ -1,5 +1,6 @@
 import settings.openailm as lm
 import re
+from settings.errors import ChatExceptionError, WrongAccessError
 
 class KeywordGenerator:
     def __init__(self):
@@ -26,6 +27,19 @@ class KeywordGenerator:
             {"role": "user", "content": ("Request in natural language: " + user_input)}
         ]
 
+
         reply = self.chatmodel.get_reply(request_msg)['content']
         output = reply[2:-2].split('", "')
+        
+        find_korean = re.findall('[ㄱ-힣]+', reply)
+
+        if output[0] == "Improper Question":
+            raise ChatExceptionError
+        
+        elif len(find_korean) == 0:
+            raise WrongAccessError
+
+        else:
+            pass
+
         return output
