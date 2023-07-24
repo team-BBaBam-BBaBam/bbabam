@@ -1,6 +1,6 @@
 from dotenv import dotenv_values
 
-class Openai_keys:
+class OpenAIKeys:
     def __init__(self):
         self.OPENAI_API_KEY = dotenv_values(".env")["OPENAI_API_KEY"]
 

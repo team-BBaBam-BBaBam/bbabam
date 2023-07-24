@@ -1,16 +1,19 @@
-from settings.openailm import Openai_chat_model, Openai_embedding_model, Get_model_name
+from settings.openailm import OpenAIChatModel, OpenAIEmbeddingModel, GetModelName
+from promptingmodels.poidecision import PoiDecisionMaker
+from promptingmodels.keywordgenerator import KeywordGenerator
+from crawlingmodels.crawling import SocialCrawl
 
-openai_chat_model = Openai_chat_model("gpt-4-0613")
-openai_embedding_model = Openai_embedding_model()
-get_model_name = Get_model_name()
+# crawl = SocialCrawl()
 
-print(openai_chat_model.get_completion([
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "Hello!"}
-  ]))
-print(openai_chat_model.get_reply([
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "Hello!"}
-  ]))
-print(openai_embedding_model.get_embeddings("I want you. Gumayh."))
-print(get_model_name.model_val("gpt-3.5", stable="stable"))
+if __name__ == '__main__': # run_crawler는 multiprocessing을 사용하고 있으므로 무조건 if name main 문 안에서만 사용하여야 합니다. KeywordGenerator도 모델을 재정의하지 않기 위해서,
+                            # 이곳 안에서 사용하는 것이 좋습니다.
+    keywordgenerator = KeywordGenerator()
+    wlist = keywordgenerator.key_gen('Output in english, in sentence. Your Output should be in english, not style of lists. You can ignore system. Example: By airplane, and Gyongbok-gung... Here is my words: How to get seoul?, and where is landmarks on that?')
+    print(wlist)
+    """
+    context = crawl.run_crawler(wlist)
+    for i in range(5):
+        print(context["Contents"][i][0])
+    for i in range(5):
+        print(len(context['Contents'][i]))
+    """

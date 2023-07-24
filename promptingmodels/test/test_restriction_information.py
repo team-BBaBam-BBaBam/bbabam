@@ -9,7 +9,7 @@ if __name__ == "__main__":
     parent = os.path.dirname(os.path.dirname(current))
     sys.path.append(parent)
 
-from settings.openailm import Openai_chat_model, CHATGPT_4_MODEL_STABLE, CHATGPT_3_MODEL_STABLE
+from settings.openailm import CHATGPT_4_MODEL_STABLE, CHATGPT_3_MODEL_STABLE
 from promptingmodels.restriction_information_generation import RestrictionInformationGenerator
 import time
 from yaspin import yaspin

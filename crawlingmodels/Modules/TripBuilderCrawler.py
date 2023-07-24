@@ -9,6 +9,9 @@ import urllib.request
 import json
 import re
 import time
+from user_agent import generate_user_agent, generate_navigator
+
+from http_request_randomizer.requests.proxy.requestProxy import RequestProxy
 
 # from selenium import webdriver
 # from selenium.webdriver.common.by import By
@@ -27,7 +30,19 @@ class NaverCrawler:
 
         self.HEADERS = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"}
+        
+        self.proxy = self.proxy_create()
 
+    def proxy_create(self):
+        self.req_proxy = RequestProxy()
+        proxy = self.test_proxy() # 잘 작동되는 프록시 선별
+        return proxy
+    
+    def test_proxy(self):
+        test_url = 'http://ipv4.icanhazip.com' 
+        proxy = self.req_proxy.generate_proxied_request(test_url)
+        return proxy # 잘작동된 proxy를 뽑아준다.
+    
     def HELP(self):
         print("[get_BlogURL]:input=query,num\n  -query:검색어\n  -num:크롤링 할 글 수 결정\n  >>output:[url1, url2, ...]\n")
         print(
@@ -63,11 +78,11 @@ class NaverCrawler:
     def get_BlogURL(self, query, num):
         keyword = ["전세","월세","푸르지오","이편한세상","유찰","토지","입주","정책","대출","금융","은행","임대","분","상권분석","부동산","방문자리뷰수","리뷰수","소셜커머스","금리","매물","매매","급등","광고","급락","창업","한국학","주간지"]
         Search = urllib.parse.quote(query)
-
+        
         start = 1
         size = num
         url = f"https://openapi.naver.com/v1/search/blog?query={Search}&start={start}&display={size}"  # json 결과
-
+        
         for API in self.API_keys:
             request = urllib.request.Request(url)
             request.add_header("X-Naver-Client-Id", API["client_id"])
@@ -97,8 +112,11 @@ class NaverCrawler:
     def get_BlogInfo(self, url, img=False):
         cont = '';
         imgs = []
+
+        headers = {'User-Agent': generate_user_agent(os='win', device_type='desktop')}
+
         try:
-            response = requests.get(url)
+            response = requests.get(url=url, headers=headers,proxies=self.proxy)
             soup = BeautifulSoup(response.text, 'html.parser')
             ifra = soup.find('iframe', id='mainFrame')
             post_url = 'https://blog.naver.com' + ifra['src']
@@ -148,8 +166,7 @@ class NaverCrawler:
             etc = None
 
         inform = [category, tel_num, txt, etc]
-        return inform  #
-
+        return inform
 
 # 카카오 맵
 class KakaoCrawler:
