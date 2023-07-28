@@ -39,7 +39,7 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
     s = (sec-h*3600)%60
     return f"{h}h {m}m {s}s"
 
-  def run_crawler(self, keyword):
+  def run_crawler(self, keyword, on_print_message=None):
     self.keywords = keyword
     s = time.time()
 
@@ -52,7 +52,10 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
           cont_lst.append({'text': conts[j], 'link': urls[j]})
         t = time.time()
         times = (t-s)*(len(self.keywords)-i-1)/(i+1)
-        print(f"\r[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",end="")
+        if on_print_message is not None:
+          on_print_message(f"[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]")
+        else:
+          print(f"\r[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",end="")
         self.searched_context = {"keywords": self.keywords[i], "Contents": cont_lst}
         self.output.append(self.searched_context)
         if self.proxy_activate:
