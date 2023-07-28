@@ -49,7 +49,8 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
         conts = []; cont_lst = []
         conts, tot_num, urls = self.Multi_Crawler(self.keywords[i],50)
         for j in range(len(conts)):
-          cont_lst.append({'text': conts[j], 'link': urls[j]})
+          if conts[j] is not None:
+            cont_lst.append({'text': conts[j], 'link': urls[j]})
         t = time.time()
         times = (t-s)*(len(self.keywords)-i-1)/(i+1)
         if on_print_message is not None:

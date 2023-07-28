@@ -32,7 +32,7 @@ class ChunkDivisor:
         chunk_overlap: Overlap token count between chunks
         '''
         splits: List[Tuple[str, int]] = []
-
+        
         encoded = self.enc.encode(text)
         start_idx = 0
         cur_idx = min(start_idx + chunk_size, len(encoded))

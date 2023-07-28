@@ -28,7 +28,7 @@ class ChunkDivisor(SingleTask):
         ]
         '''
 
-        result = map(lambda data: {"keywords": data["keywords"], "Contents":  self.chunk_divisor.divide_chunks(data["Contents"])}, crawled_data)
+        result = list(map(lambda data: {"keywords": data["keywords"], "Contents":  self.chunk_divisor.divide_chunks(data["Contents"])}, crawled_data))
 
 
         '''

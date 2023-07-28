@@ -15,7 +15,6 @@ class Crawler(SingleTask):
         def on_progress(message):
             self.update_state(TaskStateType.RUNNING, message)
         crawled_data = self.crawler.run_crawler(search_keywords, on_progress)
-        print("crawled_data: ", crawled_data)
         self.data_store.set_data(DataNames.CRAWLED_DATA, crawled_data)
 
         self.update_state(TaskStateType.FINISHED, "Crawling Finished")

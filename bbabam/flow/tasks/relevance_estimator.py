@@ -6,7 +6,7 @@ from bbabam.modules.relevance_estimator import KeywordRelevance, SentenceRelevan
 
 class _SingleRelavanceEstimator(SingleTask):
     def __init__(self, index:int, user_input: str, keywords: str, contents: list):
-        super().__init__(TaskNames.RELEVANCE_ESTIMATOR)
+        super().__init__(TaskNames.RELEVANCE_ESTIMATOR_SUBTASK)
         self.index = index
         self.user_input = user_input
         self.keywords = keywords
@@ -22,7 +22,7 @@ class _SingleRelavanceEstimator(SingleTask):
         # sentence_sim_info = sentence_relevance.sentence_similarity(self.user_input, self.contents)
 
         self.data_store.set_data(f"relevance{self.index}", map(lambda info: info["similarity"],keyword_sim_info))
-        self.update_state(TaskStateType.SUCCESS, "Estimating Relevance Finished")
+        self.update_state(TaskStateType.FINISHED, "Estimating Relevance Finished")
 
 
 class RelevanceEstimator(ParallelRunner):
@@ -30,7 +30,7 @@ class RelevanceEstimator(ParallelRunner):
         super().__init__(TaskNames.RELEVANCE_ESTIMATOR, [])
 
     def run(self):
-        divided_chunk = self.data_store.get_data(DataNames.DIVIDED_CHUNK)
+        divided_chunk = self.data_store.get_data(DataNames.CHUNK_DIVIDED_DATA)
         '''
         divided_chunk 데이터 형태:
         [
@@ -55,7 +55,7 @@ class RelevanceEstimator(ParallelRunner):
         flattened_data = []
         for data in divided_chunk:
             for content in data["Contents"]:
-                flattened_data.push({
+                flattened_data.append({
                     "keywords": data["keywords"],
                     "link": content["link"],
                     "total_token_count": content["total_token_count"],
@@ -81,7 +81,7 @@ class RelevanceEstimator(ParallelRunner):
         for index, data in enumerate(flattened_data):
             self.tasks.append(_SingleRelavanceEstimator(index, user_input, data["keywords"], data["chunks"]))
 
-        self.initialize_child_tasks(self.tasks)
+        self.initialize_child_tasks()
 
         super().run()
 
@@ -91,7 +91,7 @@ class RelevanceEstimator(ParallelRunner):
                 flattened_data[index]["chunks"][i]["similarity"] = sim
             self.data_store.remove_dataobject(f"relevance{index}")
 
-        self.data_store.set_data(DataNames.RELEVANCE_ESTIMATED_DATA, flattened_data)
+        self.data_store.set_data(DataNames.RELEVANCE_DATA, flattened_data)
         '''
         flattened_data 데이터 형태:
         [

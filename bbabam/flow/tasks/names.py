@@ -4,6 +4,7 @@ class TaskNames:
     CRAWLER = 'crawler'
     CHUNK_DIVISOR = 'chunk_divisor'
     RELEVANCE_ESTIMATOR = 'relevance_estimator'
+    RELEVANCE_ESTIMATOR_SUBTASK = 'relevance_estimator_subtask'
     MERGER = 'merger'
     POI_NEEDS_GENERATOR = 'poi_needs_generator'
     RESULT_GENERATOR = 'result_generator'
