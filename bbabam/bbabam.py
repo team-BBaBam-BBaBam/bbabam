@@ -25,11 +25,6 @@ def on_state_changed(state: MultiTaskState):
             elif child_state.type == "multi":
                 print_multi_state(child_state, depth + 1)
 
-    if state.type == "default":
-        print_default_state(state, 0)
-    elif state.type == "multi":
-        print_multi_state(state, 0)
-
     global lock
     lock.acquire()
     print("\n\non_state_changed: ")
