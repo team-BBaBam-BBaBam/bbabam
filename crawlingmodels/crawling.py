@@ -6,11 +6,13 @@ import multiprocessing as mp
 
 warnings.filterwarnings(action='ignore')
 
-class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로그 글 수집
-  def __init__(self):
-    self.crawler = TB.NaverCrawler()
+class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로그 글 수집, proxy_activate 하면 ip우회 기능 켜짐
+  def __init__(self, proxy_activate=False):
+    self.proxy_activate = proxy_activate
+    self.crawler = TB.NaverCrawler(self.proxy_activate)
     self.keywords = []
     self.contents = []
+    self.output = []
   
   def get_links(self, query, num): # 블로그의 게시글 링크들을 가져옵니다.
     data = self.crawler.get_BlogURL(query,num)
@@ -23,12 +25,12 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
     return content
 
   def Multi_Crawler(self, query,num):
-      pool = mp.Pool(processes=10)
+      pool = mp.Pool(processes=8)
       urls, tot_num = self.get_links(query,num)
       lst = pool.map(self.get_content, urls)
       pool.close()
       pool.join()
-      return lst, tot_num
+      return lst, tot_num, urls
 
   def getTime(self, sec):
     sec = int(sec)
@@ -41,22 +43,23 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
     self.keywords = keyword
     s = time.time()
 
+    self.searched_context = []
+
     for i in range(len(self.keywords)):
-      #try:
         conts = []; cont_lst = []
-        conts, tot_num = self.Multi_Crawler(self.keywords[i],50)
-        for cont in conts:
-          if(cont!=None):
-            cont_lst.append(cont)
-        self.contents.append(cont_lst)
+        conts, tot_num, urls = self.Multi_Crawler(self.keywords[i],50)
+        for j in range(len(conts)):
+          cont_lst.append({'text': conts[j], 'link': urls[j]})
         t = time.time()
         times = (t-s)*(len(self.keywords)-i-1)/(i+1)
         print(f"\r[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",end="")
-      #except:
-      #  pass
-        time.sleep(1)
-    return {"Keywords": self.keywords, "Contents": self.contents}
-  
+        self.searched_context = {"keywords": self.keywords[i], "Contents": cont_lst}
+        self.output.append(self.searched_context)
+        if self.proxy_activate:
+          time.sleep(1)
+        else:
+          time.sleep(5)
+    return self.output
 
 class POICrawl:
   def __init__(self):

@@ -74,9 +74,9 @@ class RequestProxy:
         random.shuffle(self.proxy_list)
         for i in range(len(self.proxy_list)):
             if self.proxy_list[i].get_address() not in self.memory['address']:
-                self.memory['type'].append('http')
-                self.memory['address'].append(self.proxy_list[i].get_address())
-                self.memory['usable'].append('unknown')
+                self.memory['type'].insert(0, 'http')
+                self.memory['address'].insert(0, self.proxy_list[i].get_address())
+                self.memory['usable'].insert(0, 'unknown')
 
         with open(f'C:\\Users\\user\\Desktop\\배정원\\UNIST\\대회\\한국관광공사 Gen AI 해커톤\\bbabam\\crawlingmodels\\Modules\\proxies.json', 'w') as make_file:
                 json.dump(self.memory, make_file, indent="\t")

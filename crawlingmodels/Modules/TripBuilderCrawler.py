@@ -18,7 +18,7 @@ from http_request_randomizer.requests.proxy.requestProxy import RequestProxy
 
 # 네이버 검색/블로그/플레이스 등
 class NaverCrawler:
-    def __init__(self):
+    def __init__(self, proxy_activate=False):
         self.API_keys = [{"client_id": "HSGXhbVLnjvb31S9N_cB", "client_secret": "4r9gnASzKU"},
                          {"client_id": "0mK4JnoFJM1CPYWNlG80", "client_secret": "UMINhUjvKQ"},
                          {"client_id": "9DUnlYmUPuQJlQht6UTE", "client_secret": "G3mYUv08Vh"},
@@ -31,7 +31,10 @@ class NaverCrawler:
         self.HEADERS = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"}
         
-        self.proxy = self.proxy_create()
+        self.proxy_activate = proxy_activate
+
+        if self.proxy_activate:
+            self.proxy = self.proxy_create()
 
     def proxy_create(self):
         self.req_proxy = RequestProxy()
@@ -116,7 +119,11 @@ class NaverCrawler:
         headers = {'User-Agent': generate_user_agent(os='win', device_type='desktop')}
 
         try:
-            response = requests.get(url=url, headers=headers,proxies=self.proxy)
+            if self.proxy_activate:
+                response = requests.get(url=url, headers=headers, proxies=self.proxy)
+            else:
+                response = requests.get(url=url, headers=headers)
+            
             soup = BeautifulSoup(response.text, 'html.parser')
             ifra = soup.find('iframe', id='mainFrame')
             post_url = 'https://blog.naver.com' + ifra['src']

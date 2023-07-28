@@ -9,3 +9,7 @@ class ChatExceptionError(Exception):
 class WrongAccessError(Exception):
     def __str__(self):
         return "You are to accessing wrong things to ChatGPT APIs. Try another question."
+    
+class WrongSimilarityScoreError(Exception):
+    def __str__(self):
+        return 'Try score value under 1.0, or use word_accord function when your value was 1.0.'

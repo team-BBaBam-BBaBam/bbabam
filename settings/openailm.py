@@ -51,11 +51,7 @@ class OpenAIChatModel: #밑에 모델을 편하게 선택할 수 있는 get_mode
         return completion
     
     def get_reply(self, messages):
-        completion = openai.ChatCompletion.create(
-        model=self.model,
-        messages=messages
-        )
-        return completion.choices[0].message
+        return self.get_completion(messages).choices[0].message
 
 
 class OpenAIEmbeddingModel: #워드임베딩 api는 하나밖에 없으므로 모델명은 인풋으로 받지 않음.
@@ -70,6 +66,9 @@ class OpenAIEmbeddingModel: #워드임베딩 api는 하나밖에 없으므로 �
             input=input
         )
         return embeddings
+    
+    def get_vector(self, input):
+        return self.get_embeddings(input).data[0].embedding
 
 
 class GetModelName: # 모델을 편하게 선택하기 위한 클래스
