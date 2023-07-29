@@ -1,5 +1,8 @@
 import bbabam.flow.bbabam_flow as bbabam_flow
 from bbabam.flow.components.task import MultiTaskState, DefaultTaskState, TaskStateType
+from bbabam.flow.tasks.names import DataNames
+from bbabam.flow.components.task_data_store import TaskDataStore
+
 import threading
 
 from colorama import Fore, Style
@@ -27,6 +30,8 @@ def on_state_changed(state: MultiTaskState):
 
     global lock
     lock.acquire()
+    # clear console
+    print("\033[H\033[J")
     print("\n\non_state_changed: ")
     print_multi_state(state, 0)
     lock.release()
@@ -38,4 +43,7 @@ def on_state_changed(state: MultiTaskState):
 def run_bbabam(user_input:str):
     global lock
     lock = threading.Lock()
-    bbabam_flow.start_flow(user_input=user_input, on_state_changed=on_state_changed)
+    data_store:TaskDataStore = bbabam_flow.start_flow(user_input=user_input, on_state_changed=on_state_changed)
+
+    print("Merged Text")
+    print(data_store.get_data(DataNames.MERGED_DATA))

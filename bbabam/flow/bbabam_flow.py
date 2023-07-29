@@ -12,8 +12,9 @@ from bbabam.flow.tasks.restriction_generator import RestrictionGenerator
 from bbabam.flow.tasks.poi_needs_generator import POiNeedsGenerator
 from bbabam.flow.tasks.chunk_divisor import ChunkDivisor 
 from bbabam.flow.tasks.relevance_estimator import RelevanceEstimator
+from bbabam.flow.tasks.merger import Merger
 
-def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], None]):
+def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], None]) -> TaskDataStore:
     # Construct Flow
     data_store = TaskDataStore()
     data_store.set_data(DataNames.USER_INPUT, user_input)
@@ -42,6 +43,7 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
                         [
                             ChunkDivisor(),
                             RelevanceEstimator(),
+                            Merger(),
                         ],
                     ),
                     POiNeedsGenerator(),
@@ -59,3 +61,5 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
     # Run Flow
     flow.initialize_task(data_store.generate_new_task_id(), on_state_changed, data_store)
     flow.run()
+
+    return data_store

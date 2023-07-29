@@ -15,9 +15,9 @@ class ParallelRunner(MultipleTask):
 
     def initialize_task(self, task_id: int, on_state_changed: Callable[[MultiTaskState], None], data_store: TaskDataStore):
         super().initialize_task(task_id, on_state_changed, data_store)
-        self.initialize_child_tasks()
+        self._initialize_child_tasks()
     
-    def initialize_child_tasks(self):
+    def _initialize_child_tasks(self):
         def on_task_state_changed(task_state: Union[MultiTaskState, DefaultTaskState]):
             self._on_task_state_changed(task_state)
         for task in self.tasks:
@@ -33,6 +33,11 @@ class ParallelRunner(MultipleTask):
                 lambda state: state if task_state.task_id != state.task_id else task_state,  self.task_state.states
             ))
         )
+
+    def add_task(self, task: Union[SingleTask, MultipleTask]):
+        self.tasks.append(task)
+        task.initialize_task(self.data_store.generate_new_task_id(), self._on_task_state_changed, self.data_store)
+        self.task_state.states.append(task.task_state)
 
     def run(self):
         # Start all Single Tasks

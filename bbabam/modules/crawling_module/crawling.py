@@ -57,7 +57,7 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
           on_print_message(f"[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]")
         else:
           print(f"\r[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",end="")
-        self.searched_context = {"keywords": self.keywords[i], "Contents": cont_lst}
+        self.searched_context = {"keywords": self.keywords[i], "contents": cont_lst}
         self.output.append(self.searched_context)
         if self.proxy_activate:
           time.sleep(1)

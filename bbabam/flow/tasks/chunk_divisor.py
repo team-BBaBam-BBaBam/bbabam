@@ -17,7 +17,7 @@ class ChunkDivisor(SingleTask):
         [
             {
                 "keywords": "검색어",
-                "Contents": [
+                "contents": [
                     {
                         "link": "블로그 링크",
                         "text": "블로그 글 전문",  
@@ -28,7 +28,7 @@ class ChunkDivisor(SingleTask):
         ]
         '''
 
-        result = list(map(lambda data: {"keywords": data["keywords"], "Contents":  self.chunk_divisor.divide_chunks(data["Contents"])}, crawled_data))
+        result = list(map(lambda data: {"keywords": data["keywords"], "contents":  self.chunk_divisor.divide_chunks(data["contents"])}, crawled_data))
 
 
         '''
@@ -36,7 +36,7 @@ class ChunkDivisor(SingleTask):
         [
             {
                 "keywords": "검색어",
-                "Contents": [
+                "contents": [
                     {
                         "link": "블로그 링크",
                         "total_token_count": 1234,
