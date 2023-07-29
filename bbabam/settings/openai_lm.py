@@ -20,8 +20,8 @@ class OpenAIChatModel: #밑에 모델을 편하게 선택할 수 있는 get_mode
                     #함수들에 딕셔너리 형태의 메세지를 넣으면 api값을 받아옴.
                     #API 호출시 필수 파라미터가 아닌 값들은 일단 주석처리해둠.
     def __init__(self, model, functions=None, 
-                 function_call=None, temperature=None, 
-                 top_p=None, n=None, stream=None, stop=None,
+                 function_call=None, temperature=1.0, top_p=None, 
+                 n=None, stream=None, stop=None,
                  max_tokens=None, presence_penalty=None, 
                  frequency_penalty=None, logit_bias=None, user=None):
         openai_keys = OpenAIKeys()
@@ -29,7 +29,8 @@ class OpenAIChatModel: #밑에 모델을 편하게 선택할 수 있는 get_mode
         self.model = model
         # self.functions = functions
         # self.function_call = function_call
-        # self.temperature = temperature, 
+        self.temperature = temperature
+    
         # self.top_p = top_p
         # self.n = n
         # self.stream = stream
@@ -46,7 +47,8 @@ class OpenAIChatModel: #밑에 모델을 편하게 선택할 수 있는 get_mode
     def get_completion(self, messages):
         completion = openai.ChatCompletion.create(
         model=self.model,
-        messages=messages
+        messages=messages,
+        temperature=self.temperature
         )
         return completion
     

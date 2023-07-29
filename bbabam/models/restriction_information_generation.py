@@ -74,4 +74,7 @@ class RestrictionInformationGenerator:
         is_success, processed_response = self.__process_raw_response(response)
         if not is_success:
             return ""
-        return processed_response
+        
+        output = messages + [{"role" : "assistant", "content": response}]
+
+        return processed_response, output

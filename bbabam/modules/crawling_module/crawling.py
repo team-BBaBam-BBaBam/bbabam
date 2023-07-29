@@ -24,9 +24,9 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
       return None
     return content
 
-  def Multi_Crawler(self, query,num):
-      pool = mp.Pool(processes=8)
-      urls, tot_num = self.get_links(query,num)
+  def Multi_Crawler(self, query, txt_num, processor_num):
+      pool = mp.Pool(processes=processor_num)
+      urls, tot_num = self.get_links(query,txt_num)
       lst = pool.map(self.get_content, urls)
       pool.close()
       pool.join()
@@ -39,7 +39,7 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
     s = (sec-h*3600)%60
     return f"{h}h {m}m {s}s"
 
-  def run_crawler(self, keyword):
+  def run_crawler(self, keyword, txt_num=20):
     self.keywords = keyword
     s = time.time()
 
@@ -47,9 +47,13 @@ class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 �
 
     for i in range(len(self.keywords)):
         conts = []; cont_lst = []
-        conts, tot_num, urls = self.Multi_Crawler(self.keywords[i],50)
+        conts, tot_num, urls = self.Multi_Crawler(self.keywords[i],txt_num, int(txt_num/2))
         for j in range(len(conts)):
-          cont_lst.append({'text': conts[j], 'link': urls[j]})
+          try:
+            text = conts[j].replace("\u200b", "")
+          except:
+            text = ""
+          cont_lst.append({'text': text, 'link': urls[j]})
         t = time.time()
         times = (t-s)*(len(self.keywords)-i-1)/(i+1)
         print(f"\r[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",end="")

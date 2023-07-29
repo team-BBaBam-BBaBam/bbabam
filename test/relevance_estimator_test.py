@@ -31,5 +31,5 @@ print(divided_texts[1]['chunks'])
 keyword_sim = KeywordRelevance()
 sentence_sim = SentenceRelevance()
 
-# print(sentence_sim.sentence_similarity('술', divided_texts[1]['chunks'][0:10]))
-print(keyword_sim.word_accord('술', divided_texts[1]['chunks']))
+print(sentence_sim.sentence_similarity('술', divided_texts[1]['chunks'][0:10]))
+print(keyword_sim.word_accord_tokenized('술', divided_texts[1]['chunks']))
