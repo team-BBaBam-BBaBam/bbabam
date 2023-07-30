@@ -1,6 +1,6 @@
 import re
 from bbabam.settings.errors import ChatExceptionError, WrongAccessError
-from .base_model import OpenAIChatModel
+from .base_model import ChatModel
 
 
 KEYWORD_GENERATOR_PROMPT = """You will be given 'request in natural language' which including information about user wants to know. You should generate suitable appropriate keyword that could search well. The keyword should be in Korean words and it can include proper nouns. User is foreigner who is planning to go on a trip in South Korea.
@@ -17,7 +17,7 @@ But you should remind that travel topic refers to not only place recommendation,
 """
 
 
-class KeywordGenerator(OpenAIChatModel):
+class KeywordGenerator(ChatModel):
     def __init__(
         self,
         model_type: str = "gpt-4",

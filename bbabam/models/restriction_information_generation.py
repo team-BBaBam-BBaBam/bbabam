@@ -1,5 +1,5 @@
 from typing import Tuple, List, Dict, Union
-from .base_model import OpenAIChatModel
+from .base_model import ChatModel
 
 RESTRICTION_INFORMATION_GENERATOR_PROMPT = '''You will be given 'search keyword' to get information.  Customers want answers to their search keywords.  The attendant will be responsible for providing answers to the customer.  You must write down the Instructions to be delivered to the attendant.
  
@@ -28,7 +28,7 @@ Instruction:
 '''
 
 
-class RestrictionInformationGenerator(OpenAIChatModel):
+class RestrictionInformationGenerator(ChatModel):
     """
     사용자가 입력한 질의문을 바탕으로, 이에 대한 제한사항(Instruction) 글을 생성하는 모듈
     """

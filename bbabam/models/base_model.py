@@ -1,24 +1,11 @@
 import openai
 
-from bbabam.settings.errors import NotProvidedModelError
-from bbabam.settings.environment import OpenAIKeys
 
 from typing import Dict, List
 from dataclasses import dataclass
 
-CHATGPT_3_MODEL = "gpt-3.5-turbo"
-CHATGPT_3_MODEL_16K = "gpt-3.5-turbo-16k"
-CHATGPT_3_MODEL_STABLE = "gpt-3.5-turbo-0613"
-CHATGPT_3_MODEL_16K_STABLE = "gpt-3.5-turbo-16k-0613"
-CHATGPT_4_MODEL = "gpt-4"
-CHATGPT_4_MODEL_32K = "gpt-4-32k"
-CHATGPT_4_MODEL_STABLE = "gpt-4-0613"
-CHATGPT_4_MODEL_32K_STABLE = "gpt-4-32k-0613"
-WORD_EMBEDDING_MODEL = "text-embedding-ada-002"
 
-
-OpenAIKeys().init()
-
+PROVIDER_LIST = ["openai", "kakao"]
 MessageType = List[Dict[str, str]]
 
 
@@ -35,7 +22,7 @@ class ChatModelRespondType:
     info: Dict
 
 
-class OpenAIChatModel:
+class ChatModel:
     # 밑에 모델을 편하게 선택할 수 있는 get_model_name 클래스가 있지만,
     # 여기서도 바로 값을 넣어 api를 구동할 수 있음.
     # 알맞은 모델이름을 넣고 클래스 선언.
@@ -48,19 +35,28 @@ class OpenAIChatModel:
         temperature: float = 1.0,
         stable: bool = False,
         more_tokens: bool = False,
+        provider: str = "kakao",
     ):
+        assert provider in PROVIDER_LIST
         self.model_type = model_type
-        self.model = getModelName(model_type, stable, more_tokens)
         self.temperature = temperature
         self.system_prompt = system_prompt
 
-    def __get_openai_api(self, messages: MessageType):
-        completion = openai.ChatCompletion.create(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature,
-        )
-        return completion
+        if provider == "openai":
+            from .provider.openai import OpenaiProvider, getModelName
+
+            self.getModelName = getModelName
+            self.provider = OpenaiProvider()
+        elif provider == "kakao":
+            from .provider.kakao import KakaoProvider, getModelName
+
+            self.getModelName = getModelName
+            self.provider = KakaoProvider()
+
+        self.model = self.getModelName(model_type, stable, more_tokens)
+
+    def __get_provider(self, messages: MessageType):
+        return self.provider.get(messages, self.model, self.temperature)
 
     def create_default_message(self, user_input: str) -> MessageType:
         return self.create_message(self.system_prompt, user_input)
@@ -75,11 +71,11 @@ class OpenAIChatModel:
         ]
 
     def get_reply(self, messages: MessageType) -> ChatModelRespondType:
-        respond = self.__get_openai_api(messages)
+        respond = self.__get_provider(messages)
         return ChatModelRespondType(
-            respond=respond.choices[0].message.content,
-            respond_with_message=[*messages, [respond.choices[0].message]],
-            info={**respond.usage},
+            respond=respond.respond,
+            respond_with_message=[*messages, [respond.message]],
+            info={**respond.info},
         )
 
     def forward(self, user_input: str) -> ChatModelRespondType:
@@ -88,50 +84,20 @@ class OpenAIChatModel:
         return reply
 
 
-class OpenAIEmbeddingModel:
-    # 워드임베딩 api는 하나밖에 없으므로 모델명은 인풋으로 받지 않음.
-    # 인풋문장을 넣어주면 출력되는 get_embedding 함수가 있음.
+# class OpenAIEmbeddingModel:
+#     # 워드임베딩 api는 하나밖에 없으므로 모델명은 인풋으로 받지 않음.
+#     # 인풋문장을 넣어주면 출력되는 get_embedding 함수가 있음.
 
-    def get_embeddings(self, input):
-        embeddings = openai.Embedding.create(
-            model="text-embedding-ada-002", input=input
-        )
-        return embeddings
+#     def get_embeddings(self, input):
+#         embeddings = openai.Embedding.create(
+#             model="text-embedding-ada-002", input=input
+#         )
+#         return embeddings
 
-    def get_vector(self, input):
-        return self.get_embeddings(input).data[0].embedding
+#     def get_vector(self, input):
+#         return self.get_embeddings(input).data[0].embedding
 
 
 def getAvailable():
     "Return all available models."
     return openai.Model.list()
-
-
-def getModelName(model_type: str, stable: bool = False, more_tokens: bool = False):
-    # 모델을 편하게 선택하기 위한 클래스
-    # model의 가능한 인풋은 gpt-3.5, gpt-4, word-embedding 중에 하나.
-
-    if model_type == "gpt-3.5":
-        if stable and more_tokens:
-            return CHATGPT_3_MODEL_16K_STABLE
-        elif stable and not more_tokens:
-            return CHATGPT_3_MODEL_STABLE
-        elif not stable and more_tokens:
-            return CHATGPT_3_MODEL_16K
-        else:
-            return CHATGPT_3_MODEL
-
-    elif model_type == "gpt-4":
-        if stable and more_tokens:
-            return CHATGPT_4_MODEL_32K_STABLE
-        elif stable and not more_tokens:
-            return CHATGPT_4_MODEL_STABLE
-        elif not stable and more_tokens:
-            return CHATGPT_4_MODEL_32K
-        else:
-            return CHATGPT_4_MODEL
-
-    elif model_type == "word-embedding":
-        return WORD_EMBEDDING_MODEL
-    else:
-        raise NotProvidedModelError
