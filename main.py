@@ -191,8 +191,10 @@ class Agent:
         )
 
         print(output)
-        print("Total :", self.total_time, "seconds")
 
+        self.log("Summary")
+        print("Total :", self.total_time, "seconds")
+        print()
         print("Token Usage :")
         self.token_tracker.print_tokens()
 
