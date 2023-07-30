@@ -6,8 +6,8 @@ from bbabam.models.base_model import OpenAIEmbeddingModel
 
 
 def list_compare(target, source):
-    targetchar = "".join(str(word) for word in target)
-    sourcechar = "".join(str(word) for word in source)
+    targetchar = ''.join(str(word) for word in target)
+    sourcechar = ''.join(str(word) for word in source)
     location_list = []
     for i in range(len(source)):
         if sourcechar[: len(targetchar)] == targetchar:
