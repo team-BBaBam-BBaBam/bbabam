@@ -3,7 +3,7 @@ import openai
 from bbabam.settings.errors import NotProvidedModelError
 from bbabam.settings.environment import OpenAIKeys
 
-from typing import Dict, List
+from typing import Dict, List, Union, Callable
 from dataclasses import dataclass
 
 CHATGPT_3_MODEL = "gpt-3.5-turbo"
@@ -64,7 +64,7 @@ class OpenAIChatModel:
 
     def create_default_message(self, user_input: str) -> MessageType:
         return self.create_message(self.system_prompt, user_input)
-
+    
     def create_message(self, system_input: str, user_input: str) -> MessageType:
         return [
             {"role": "system", "content": system_input},
@@ -82,8 +82,11 @@ class OpenAIChatModel:
             info={**respond.usage},
         )
 
-    def forward(self, user_input: str) -> ChatModelRespondType:
-        message = self.create_default_message(user_input)
+    def forward(self, user_input: str, get_system_prompt:Union[Callable[[], str], None]=None) -> ChatModelRespondType:
+        if get_system_prompt is None:
+            message = self.create_default_message(user_input)
+        else:
+            message = self.create_message(get_system_prompt(), user_input)
         reply = self.get_reply(message)
         return reply
 
@@ -94,7 +97,7 @@ class OpenAIEmbeddingModel:
 
     def get_embeddings(self, input):
         embeddings = openai.Embedding.create(
-            model="text-embedding-ada-002", input=input
+            model="text-embedding-ada-002", input=input,
         )
         return embeddings
 

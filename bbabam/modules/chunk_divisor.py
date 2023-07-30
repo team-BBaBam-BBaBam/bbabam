@@ -32,7 +32,7 @@ class ChunkDivisor:
         chunk_overlap: Overlap token count between chunks
         '''
         splits: List[Tuple[str, int]] = []
-
+        
         encoded = self.enc.encode(text)
         start_idx = 0
         cur_idx = min(start_idx + chunk_size, len(encoded))
@@ -46,7 +46,7 @@ class ChunkDivisor:
 
         return splits
 
-    def divide_chunks(self, data: List[RawText], chunk_size: int = 200, chunk_overlap: int = 20) -> List[ChunkDividedText]:
+    def divide_chunks(self, data: List[RawText], chunk_size: int = 400, chunk_overlap: int = 20) -> List[ChunkDividedText]:
         '''
         data: List of RawText
         max_token_count: Maximum token count of each chunk

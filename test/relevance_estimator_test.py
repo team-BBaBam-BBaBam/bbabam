@@ -7,7 +7,6 @@ if __name__ == "__main__":
 
 from bbabam.modules.relevance_estimator import KeywordRelevance, SentenceRelevance
 from bbabam.modules.chunk_divisor import ChunkDivisor
-import bbabam.settings.openai_lm as lm
 
 with open('test/blog_content1.txt', 'r', encoding='utf-8') as f:
         blog1 = f.read()

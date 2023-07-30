@@ -1,13 +1,13 @@
-import bbabam.settings.openai_lm as lm
 import tiktoken
 import numpy as np
 from numpy.linalg import norm
 import re
+from bbabam.models.base_model import OpenAIEmbeddingModel 
 
 
 def list_compare(target, source):
-    targetchar = "".join(str(word) for word in target)
-    sourcechar = "".join(str(word) for word in source)
+    targetchar = ''.join(str(word) for word in target)
+    sourcechar = ''.join(str(word) for word in source)
     location_list = []
     for i in range(len(source)):
         if sourcechar[: len(targetchar)] == targetchar:
@@ -18,8 +18,7 @@ def list_compare(target, source):
 
 class CosineSimilarity:
     def __init__(self):
-        self.embedmodel = lm.OpenAIEmbeddingModel()
-        print(self.embedmodel)
+        self.embedmodel = OpenAIEmbeddingModel()
 
     def get_vector(self, input):
         return self.embedmodel.get_vector(input)

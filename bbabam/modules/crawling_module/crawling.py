@@ -45,7 +45,7 @@ class SocialCrawl:
         s = (sec - h * 3600) % 60
         return f"{h}h {m}m {s}s"
 
-    def forward(self, keyword, txt_num=20):
+    def forward(self, keyword, txt_num=20, on_print_message=None):
         self.keywords = keyword
         s = time.time()
 
@@ -65,19 +65,24 @@ class SocialCrawl:
                 cont_lst.append({"text": text, "link": urls[j]})
             t = time.time()
             times = (t - s) * (len(self.keywords) - i - 1) / (i + 1)
-            print(
-                f"\r[{i+1}/{len(self.keywords)}]|"
-                + self.keywords[i]
-                + f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",
-                end="",
-            )
-            self.searched_context = {"keywords": self.keywords[i], "Contents": cont_lst}
+            if on_print_message is not None:
+                on_print_message(
+                    f"{self.keywords[i]} Completed... ({i+1}/{len(self.keywords)}) | [Remaining time:{self.getTime(times)}]"
+                )
+            else:
+                print(
+                    f"\r[{i+1}/{len(self.keywords)}]|"
+                    + self.keywords[i]
+                    + f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",
+                    end="",
+                )
+            self.searched_context = {"keywords": self.keywords[i], "contents": cont_lst}
             self.output.append(self.searched_context)
             if self.proxy_activate:
                 time.sleep(1)
             else:
                 time.sleep(5)
-        return self.output, [], {}
+        return self.output
 
 
 class POICrawl:
