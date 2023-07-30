@@ -4,69 +4,91 @@ import time
 
 import multiprocessing as mp
 
-warnings.filterwarnings(action='ignore')
+warnings.filterwarnings(action="ignore")
 
-class SocialCrawl: #멀티프로세싱 사용해서 각 검색어당 50개의 블로그 글 수집, proxy_activate 하면 ip우회 기능 켜짐
-  def __init__(self, proxy_activate=False):
-    self.proxy_activate = proxy_activate
-    self.crawler = TB.NaverCrawler(self.proxy_activate)
-    self.keywords = []
-    self.contents = []
-    self.output = []
-  
-  def get_links(self, query, num): # 블로그의 게시글 링크들을 가져옵니다.
-    data = self.crawler.get_BlogURL(query,num)
-    return data
 
-  def get_content(self, url):
-    content,_ = self.crawler.get_BlogInfo(url)
-    if len(content)==0:
-      return None
-    return content
+class SocialCrawl:
+    # 멀티프로세싱 사용해서 각 검색어당 50개의 블로그 글 수집, proxy_activate 하면 ip우회 기능 켜짐
+    def __init__(self, proxy_activate=False):
+        self.proxy_activate = proxy_activate
+        self.crawler = TB.NaverCrawler(self.proxy_activate)
+        self.keywords = []
+        self.contents = []
+        self.output = []
 
-  def Multi_Crawler(self, query,num):
-      pool = mp.Pool(processes=8)
-      urls, tot_num = self.get_links(query,num)
-      lst = pool.map(self.get_content, urls)
-      pool.close()
-      pool.join()
-      return lst, tot_num, urls
+    def __repr__(self) -> str:
+        return "Trip Builder Social Data Crawling Module"
 
-  def getTime(self, sec):
-    sec = int(sec)
-    h = sec//3600
-    m = (sec-h*3600)//60
-    s = (sec-h*3600)%60
-    return f"{h}h {m}m {s}s"
+    def get_links(self, query, num):
+        # 블로그의 게시글 링크들을 가져옵니다.
+        data = self.crawler.get_BlogURL(query, num)
+        return data
 
-  def run_crawler(self, keyword, on_print_message=None):
-    self.keywords = keyword
-    s = time.time()
+    def get_content(self, url):
+        content, _ = self.crawler.get_BlogInfo(url)
+        if len(content) == 0:
+            return None
+        return content
 
-    self.searched_context = []
+    def Multi_Crawler(self, query, txt_num, processor_num):
+        pool = mp.Pool(processes=processor_num)
+        urls, tot_num = self.get_links(query, txt_num)
+        lst = pool.map(self.get_content, urls)
+        pool.close()
+        pool.join()
+        return lst, tot_num, urls
 
-    for i in range(len(self.keywords)):
-        conts = []; cont_lst = []
-        conts, tot_num, urls = self.Multi_Crawler(self.keywords[i],50)
-        for j in range(len(conts)):
-          if conts[j] is not None:
-            cont_lst.append({'text': conts[j], 'link': urls[j]})
-        t = time.time()
-        times = (t-s)*(len(self.keywords)-i-1)/(i+1)
-        if on_print_message is not None:
-          on_print_message(f"[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]")
-        else:
-          print(f"\r[{i+1}/{len(self.keywords)}]|"+self.keywords[i]+f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",end="")
-        self.searched_context = {"keywords": self.keywords[i], "contents": cont_lst}
-        self.output.append(self.searched_context)
-        if self.proxy_activate:
-          time.sleep(1)
-        else:
-          time.sleep(5)
-    return self.output
+    def getTime(self, sec):
+        sec = int(sec)
+        h = sec // 3600
+        m = (sec - h * 3600) // 60
+        s = (sec - h * 3600) % 60
+        return f"{h}h {m}m {s}s"
+
+    def forward(self, keyword, txt_num=20, on_print_message=None):
+        self.keywords = keyword
+        s = time.time()
+
+        self.searched_context = []
+
+        for i in range(len(self.keywords)):
+            conts = []
+            cont_lst = []
+            conts, tot_num, urls = self.Multi_Crawler(
+                self.keywords[i], txt_num, int(txt_num / 2)
+            )
+            for j in range(len(conts)):
+                try:
+                    text = conts[j].replace("\u200b", "")
+                except:
+                    text = ""
+                cont_lst.append({"text": text, "link": urls[j]})
+            t = time.time()
+            times = (t - s) * (len(self.keywords) - i - 1) / (i + 1)
+            if on_print_message is not None:
+                on_print_message(
+                    f"\r[{i+1}/{len(self.keywords)}]|"
+                    + self.keywords[i]
+                    + f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]"
+                )
+            else:
+                print(
+                    f"\r[{i+1}/{len(self.keywords)}]|"
+                    + self.keywords[i]
+                    + f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",
+                    end="",
+                )
+            self.searched_context = {"keywords": self.keywords[i], "contents": cont_lst}
+            self.output.append(self.searched_context)
+            if self.proxy_activate:
+                time.sleep(1)
+            else:
+                time.sleep(5)
+        return self.output
+
 
 class POICrawl:
-  def __init__(self):
-    self.crawler = TB.KakaoCrawler()
-    self.keywords = []
-    self.contents = []
+    def __init__(self):
+        self.crawler = TB.KakaoCrawler()
+        self.keywords = []
+        self.contents = []

@@ -89,7 +89,7 @@ class _ParallelRelevanceEstimator(ParallelRunner):
             data = self.data_store.get_data(f"relevance{index}")
             for i, sim in enumerate(data):
                 flattened_data[index]["chunks"][i]["similarity"] = sim
-            self.data_store.remove_dataobject(f"relevance{index}")
+            self.data_store.remove_data(f"relevance{index}")
 
         self.data_store.set_data(DataNames.RELEVANCE_DATA, flattened_data)
         '''

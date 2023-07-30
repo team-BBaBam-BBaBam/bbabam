@@ -16,8 +16,10 @@ class POiNeedsGenerator(SingleTask):
 
         # ERROR!!!! keywords는 리스트인데, poi_decision_maker.decision_making에서는 str로 받아들임
         # TODO: keywords를 리스트로 받아들이도록 수정
-        poi = self.poi_decision_maker.decision_making(keywords[0], user_input)
+        poi, messages, info = self.poi_decision_maker.forward(keywords[0], user_input)
 
         self.data_store.set_data(DataNames.POI_NEEDS, poi)
+        self.data_store.set_task_message(TaskNames.POI_NEEDS_GENERATOR, messages)
+        self.data_store.set_task_info(TaskNames.POI_NEEDS_GENERATOR, info)
         
         self.update_state(TaskStateType.FINISHED, "POI Decided")

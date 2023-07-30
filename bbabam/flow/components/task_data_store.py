@@ -1,4 +1,4 @@
-from typing import Union, Dict, Any
+from typing import Dict, Any, List
 
 class TaskDataObject:
     data_name: str
@@ -27,8 +27,19 @@ class TaskDataStore:
         return tdobj.data_value
                               
     def set_data(self, data_name: str, data_value: Any):
-
         self.store[data_name] = TaskDataObject(data_name, data_value)
 
-    def remove_dataobject(self, data_name: str):
+    def set_task_message(self, task_name:str, message:List[Dict[str, str]]):
+        self.set_data(f"{task_name}_message", message)
+    
+    def get_task_message(self, task_name:str) -> List[Dict[str, str]]:
+        return self.get_data(f"{task_name}_message")
+    
+    def set_task_info(self, task_name:str, info:Dict[str, Any]):
+        self.set_data(f"{task_name}_info", info)
+
+    def get_task_info(self, task_name:str) -> Dict[str, Any]:
+        return self.get_data(f"{task_name}_info")
+    
+    def remove_data(self, data_name: str):
         self.store.pop(data_name, None)

@@ -7,7 +7,6 @@ if __name__ == "__main__":
 
 from bbabam.modules.relevance_estimator import KeywordRelevance, SentenceRelevance
 from bbabam.modules.chunk_divisor import ChunkDivisor
-import bbabam.settings.openai_lm as lm
 
 with open('test/blog_content1.txt', 'r', encoding='utf-8') as f:
         blog1 = f.read()
@@ -31,5 +30,5 @@ print(divided_texts[1]['chunks'])
 keyword_sim = KeywordRelevance()
 sentence_sim = SentenceRelevance()
 
-# print(sentence_sim.sentence_similarity('술', divided_texts[1]['chunks'][0:10]))
-print(keyword_sim.word_accord('술', divided_texts[1]['chunks']))
+print(sentence_sim.sentence_similarity('술', divided_texts[1]['chunks'][0:10]))
+print(keyword_sim.word_accord_tokenized('술', divided_texts[1]['chunks']))

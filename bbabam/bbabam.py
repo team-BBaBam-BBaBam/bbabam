@@ -31,7 +31,7 @@ def on_state_changed(state: MultiTaskState):
     global lock
     lock.acquire()
     # clear console
-    print("\033[H\033[J")
+    # print("\033[H\033[J")
     print("\n\non_state_changed: ")
     print_multi_state(state, 0)
     lock.release()

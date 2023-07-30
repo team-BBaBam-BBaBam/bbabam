@@ -3,16 +3,17 @@ from bbabam.flow.tasks.names import TaskNames, DataNames
 
 from bbabam.modules.chunk_divisor import ChunkDivisor as ChunkDivisorModule
 
+
 class ChunkDivisor(SingleTask):
     def __init__(self):
         super().__init__(TaskNames.CHUNK_DIVISOR)
         self.chunk_divisor = ChunkDivisorModule()
-    
+
     def run(self):
         self.update_state(TaskStateType.RUNNING, "Dividing Chunk")
 
         crawled_data = self.data_store.get_data(DataNames.CRAWLED_DATA)
-        '''
+        """
         crawled_data 데이터 형태:
         [
             {
@@ -26,12 +27,21 @@ class ChunkDivisor(SingleTask):
                 ]
             }
         ]
-        '''
+        """
 
-        result = list(map(lambda data: {"keywords": data["keywords"], "contents":  self.chunk_divisor.divide_chunks(data["contents"])}, crawled_data))
+        result = list(
+            map(
+                lambda data: {
+                    "keywords": data["keywords"],
+                    "contents": self.chunk_divisor.divide_chunks(
+                        filter(lambda x: x["text"] is not None, data["contents"])
+                    ),
+                },
+                crawled_data,
+            )
+        )
 
-
-        '''
+        """
         result 데이터 형태:
         [
             {
@@ -50,7 +60,7 @@ class ChunkDivisor(SingleTask):
                 ]
             }
         ]
-        '''
+        """
         self.data_store.set_data(DataNames.CHUNK_DIVIDED_DATA, result)
 
         self.update_state(TaskStateType.FINISHED, "Dividing Chunk Finished")
