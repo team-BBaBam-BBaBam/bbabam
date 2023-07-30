@@ -1,9 +1,9 @@
 import bbabam.models as models
 import bbabam.modules as modules
 import time
-import json
 
-class TimeCheker():
+
+class TimeCheker:
     def __init__(self) -> None:
         self.__s_time = None
         self.__e_time = None
@@ -14,19 +14,123 @@ class TimeCheker():
 
     def start(self):
         self.__s_time = time.time()
-        
+
     def end(self):
         self.__e_time = time.time()
         print()
-        print("Time Elapsed: " + str(self.__e_time - self.__s_time), "seconds")
+        dur = self.__e_time - self.__s_time
         print()
-        
         self.__clear()
+        return dur
+
+
+class TokenTracker:
+    def __init__(self) -> None:
+        self.total_tokens = {
+            "gpt-3.5-turbo": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "gpt-3.5-turbo-16k": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "gpt-3.5-turbo-0613": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "gpt-3.5-turbo-16k-0613": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "gpt-4": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "gpt-4-32k": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "gpt-4-0613": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "gpt-4-32k-0613": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+            "text-embedding-ada-002": {
+                "prompt_tokens": 0.0,
+                "completion_tokens": 0.0,
+            },
+        }
+        self.price_per_1k = {
+            "gpt-3.5-turbo": {
+                "prompt_token_cost": 0.0015,
+                "completion_token_cost": 0.002,
+                "max_tokens": 4096,
+            },
+            "gpt-3.5-turbo-0613": {
+                "prompt_token_cost": 0.0015,
+                "completion_token_cost": 0.002,
+                "max_tokens": 4096,
+            },
+            "gpt-3.5-turbo-16k-0613": {
+                "prompt_token_cost": 0.003,
+                "completion_token_cost": 0.004,
+                "max_tokens": 16384,
+            },
+            "gpt-4-0314": {
+                "prompt_token_cost": 0.03,
+                "completion_token_cost": 0.06,
+                "max_tokens": 8192,
+            },
+            "gpt-4-0613": {
+                "prompt_token_cost": 0.03,
+                "completion_token_cost": 0.06,
+                "max_tokens": 8191,
+            },
+            "gpt-4-32k-0314": {
+                "prompt_token_cost": 0.06,
+                "completion_token_cost": 0.12,
+                "max_tokens": 32768,
+            },
+            "gpt-4-32k-0613": {
+                "prompt_token_cost": 0.06,
+                "completion_token_cost": 0.12,
+                "max_tokens": 32768,
+            },
+        }
+
+    def add_tokens(self, model: str, prompt_tokens: float, completion_tokens: float):
+        if model not in self.total_tokens:
+            raise ValueError(f"{model}은(는) 유효한 모델 이름이 아닙니다.")
+        self.total_tokens[model]["prompt_tokens"] += prompt_tokens
+        self.total_tokens[model]["completion_tokens"] += completion_tokens
+
+    def print_tokens(self) -> None:
+        for model, tokens in self.total_tokens.items():
+            print(f"Model: {model}")
+            print(f"Prompt Tokens: {tokens['prompt_tokens']}")
+            print(f"Completion Tokens: {tokens['completion_tokens']}")
+            print("\n")
+
+    def get_total_cost(self) -> float:
+        total_cost = 0.0
+        for model, tokens in self.total_tokens.items():
+            price_info = self.price_per_1k[model]
+            prompt_cost = price_info["prompt_token_cost"]
+            completion_cost = price_info["completion_token_cost"]
+            total_cost += (
+                prompt_cost * tokens["prompt_tokens"]
+                + completion_cost * tokens["completion_tokens"]
+            )
+        return total_cost
+
 
 class Agent:
     def __init__(self) -> None:
         self.keywords_generator = models.KeywordGenerator()
-        self.poi_decision = models.PoiDecisionMaker()
         self.restriction_generator = models.RestrictionInformationGenerator()
         self.result_generator = models.ResultGenerator()
 
@@ -34,50 +138,65 @@ class Agent:
         self.crawler = modules.SocialCrawl()
 
         self.chat_history = []
-    
-    def log(self, text):
-        print("-" * 10, text, "-" * 10)
+        self.time_checker = TimeCheker()
+        self.total_time = 0.0
+        self.token_tracker = TokenTracker()
 
-    def call(self):
-        st = time.time()
-        time_checker = TimeCheker()
+    def log(self, text):
+        print()
+        print("-" * 10, text, "-" * 10)
+        print()
+
+    def forward_model(self, model, inp, calc_token=True):
+        self.log(model)
+        self.time_checker.start()
+
+        data, chat_hist, token_info = model.forward(inp)
+        if calc_token:
+            self.token_tracker.add_tokens(
+                model.model,
+                token_info["prompt_tokens"],
+                token_info["completion_tokens"],
+            )
+            print("Token useage :")
+            print(token_info)
+        self.chat_history.append(chat_hist)
+        dur = self.time_checker.end()
+        print("Time Elapsed:", str(dur), "seconds")
+        print()
+
+        self.total_time += dur
+        return data
+
+    def run(self):
         search_text = input("Input Text : ")
-        # search_text = "How many Starbucks are there in Daejeon Shinsegae Department Store?"
-        time_checker.start()
-        self.log("Web-Search Keyword Generation Module")
-        wlist, hist = self.keywords_generator.key_gen(search_text)
-        self.chat_history.append(hist)
-        time_checker.end()
+
+        wlist = self.forward_model(self.keywords_generator, search_text)
         print(wlist)
 
-        time_checker.start()
-        self.log("Trip Builder Social Data Crawling Module")
-        context = self.crawler.run_crawler(wlist[:2])
-        context = [content['Contents'][:3] for content in context]
-        time_checker.end()
+        context = self.forward_model(self.crawler, wlist[:2], calc_token=False)
+        context = [content["Contents"][:3] for content in context]
         print(str(context)[:300])
 
-
-        time_checker.start()
-        self.log("Restriction information Generation Module")
-        restriction, hist = self.restriction_generator.generate_restriction(search_text)
-        self.chat_history.append(hist)
-        time_checker.end()
+        restriction = self.forward_model(self.restriction_generator, search_text)
         print(restriction)
 
-
-        time_checker.start()
-        self.log("Result Generation")
-        output = self.result_generator.result_gen(search_text, restriction, str(context))
-        time_checker.end()
+        output = self.forward_model(
+            self.result_generator,
+            {
+                "search_text": search_text,
+                "restriction": restriction,
+                "information": str(context),
+            },
+        )
 
         print(output)
-        et = time.time()
-        print("Total :",et - st, "seconds")
+        print("Total :", self.total_time, "seconds")
 
-        print(111)
+        print("Token Usage :")
+        self.token_tracker.print_tokens()
 
 
 if __name__ == "__main__":
     agent = Agent()
-    agent.call()
+    agent.run()

@@ -1,7 +1,7 @@
 from typing import Tuple, List, Dict, Union
-from bbabam.settings.openai_lm import OpenAIChatModel, CHATGPT_4_MODEL_STABLE, CHATGPT_3_MODEL_STABLE
+from .base_model import OpenAIChatModel
 
-sys_prompt = '''You will be given 'search keyword' to get information.  Customers want answers to their search keywords.  The attendant will be responsible for providing answers to the customer.  You must write down the Instructions to be delivered to the attendant.
+RESTRICTION_INFORMATION_GENERATOR_PROMPT = '''You will be given 'search keyword' to get information.  Customers want answers to their search keywords.  The attendant will be responsible for providing answers to the customer.  You must write down the Instructions to be delivered to the attendant.
  
 
 Condition:
@@ -28,53 +28,57 @@ Instruction:
 '''
 
 
-class RestrictionInformationGenerator:
-    '''
+class RestrictionInformationGenerator(OpenAIChatModel):
+    """
     사용자가 입력한 질의문을 바탕으로, 이에 대한 제한사항(Instruction) 글을 생성하는 모듈
-    '''
+    """
 
-    def __init__(self, use_gpt3: bool = False, openai_chat_model: Union[OpenAIChatModel, None] = None):
-        if openai_chat_model is None:
-            self.__openai_chat_model = OpenAIChatModel(
-                CHATGPT_3_MODEL_STABLE if use_gpt3 else CHATGPT_4_MODEL_STABLE)
-        else:
-            self.__openai_chat_model = openai_chat_model
+    def __init__(
+        self,
+        model_type: str = "gpt-4",
+        temperature: float = 0.7,
+        stable: bool = True,
+        more_tokens: bool = False,
+    ):
+        super().__init__(
+            model_type,
+            RESTRICTION_INFORMATION_GENERATOR_PROMPT,
+            temperature,
+            stable,
+            more_tokens,
+        )
 
-    def __create_messages(self, user_input: str) -> List[Dict[str, str]]:
-        return [
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": f'Given search keyword:\n"""\n{user_input}\n"""'}
-        ]
+    def __repr__(self) -> str:
+        return "Restriction information Generation Module"
 
     def __process_raw_response(self, raw_response: str) -> Tuple[bool, str]:
-        '''
+        """
         raw_response: OpenAI API로부터 받은 raw response
         return: (is_success, processed_response)
-        '''
+        """
         raw_response = raw_response.strip()
         if not raw_response.startswith("Instruction:"):
             return False, ""
 
-        processed_response = raw_response[len("Instruction:"):].strip()
-        if not processed_response.startswith('"""') or not processed_response.endswith('"""'):
+        processed_response = raw_response[len("Instruction:") :].strip()
+        if not processed_response.startswith('"""') or not processed_response.endswith(
+            '"""'
+        ):
             return False, ""
 
         processed_response = processed_response[3:-3].strip()
         return True, processed_response
 
-    def generate_restriction(self, user_input: str) -> str:
-        '''
+    def forward(self, user_input: str) -> str:
+        """
         user_input: 사용자가 입력한 검색 키워드
         return: Instruction (str) or "" (str) (실패시)
-        '''
-        messages = self.__create_messages(user_input)
-        completion = self.__openai_chat_model.get_completion(messages)
+        """
+        reply = super().forward(f'Given search keyword:\n"""\n{user_input}\n"""')
         # TODO: Handle Failed Response Case
-        response = completion["choices"][0]["message"]["content"]
+        response = reply.respond
         is_success, processed_response = self.__process_raw_response(response)
         if not is_success:
-            return ""
-        
-        output = messages + [{"role" : "assistant", "content": response}]
+            return "", reply.info
 
-        return processed_response, output
+        return processed_response, reply.respond_with_message, reply.info
