@@ -14,8 +14,11 @@ You should output overall answer for the user input.
 4. Use searched(given) information rather than your pre-trained insight.
 5. You should combine overall informations given, and answer it detailed and high-quality.
 6. You should write the answer to be concise and organize information well.
-7. You should Include link in your anwser if it is necessary.
-
+7. You should Include url link in your anwser if it is necessary.
+7-1. URL links should be composed with given 'Result of Searched Social Data', and don't provide urls in 'text' key, only provide from 'link' key. URL must be naver blog links.
+7-2. Your URL links output should be located at very end of the overall output and formed as following example:
+    [Links]
+    [link1, link2, link3, link4...]
 """
 
 
