@@ -29,9 +29,18 @@ class ResultGenerator(OpenAIChatModel):
     def __repr__(self) -> str:
         return "Result Generation"
 
-    def forward(self, data: Dict[str, str]):
-        system_prompt = self.system_prompt + data["search_text"] + data["restriction"]
-        user_input = """This is result from search engine: \n""" + data["information"]
+    def forward(self, user_input: str, restriction: str, information: str):
+        system_prompt = (
+            self.system_prompt
+            + "\nUser input: \n\"\"\"\n"
+            + user_input
+            + "\n\"\"\"\n"
+            + "Instruction:  \n\"\"\"\n"
+            + restriction
+            + "\n\"\"\"\n"
+        )
+
+        user_input = "This is result from search engine: \n\"\"\"\n" + information + "\n\"\"\"\n"
 
         reply = super().forward(
             user_input,

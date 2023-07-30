@@ -93,6 +93,7 @@ class Merger(SingleTask):
             link_idx += 1
         
         self.data_store.set_data(DataNames.MERGED_DATA, merged_text)
+        self.data_store.set_data(DataNames.LINKS, list(merged_data.keys()))
         
         self.update_state(TaskStateType.FINISHED, "Merging Finished")
         

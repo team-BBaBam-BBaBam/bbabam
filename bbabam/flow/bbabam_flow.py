@@ -23,7 +23,7 @@ class FlowConfigurations:
     chunk_overlap = 0
     max_contents_token_count=10000
 
-def start_flow(user_input: str, configurations:Union[FlowConfigurations, None], on_state_changed: Callable[[MultiTaskState], None]) -> TaskDataStore:
+def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], None], configurations:Union[FlowConfigurations, None]=None) -> TaskDataStore:
     # Construct Flow
     data_store = TaskDataStore()
     data_store.set_data(DataNames.USER_INPUT, user_input)

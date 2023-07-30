@@ -17,5 +17,6 @@ class DataNames:
     CHUNK_DIVIDED_DATA = 'chunk_divided_data'
     RELEVANCE_DATA = 'relevance_data'
     MERGED_DATA = 'merged_data'
+    LINKS = 'links'
     POI_NEEDS = 'poi_needs'
     RESULT = 'result'

@@ -10,7 +10,7 @@ from colorama import Fore, Style
 
 def on_state_changed(state: MultiTaskState):
     import os
-    
+
     def print_default_state(state: DefaultTaskState, depth: int, last=False):
         indent = "│   " * (depth - 1)
         if last:
@@ -47,9 +47,9 @@ def on_state_changed(state: MultiTaskState):
     lock.acquire()
 
     # clear console
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
-    print("\n\non_state_changed: ")
+    print("\n\nOn_state_changed: ")
     print_multi_state(state, 0)
 
     lock.release()
@@ -60,8 +60,23 @@ def run_bbabam(user_input: str):
     lock = threading.Lock()
 
     data_store: TaskDataStore = bbabam_flow.start_flow(
-        user_input=user_input, configurations=None, on_state_changed=on_state_changed
+        user_input=user_input, on_state_changed=on_state_changed
     )
 
-    print("Result")
+    print(f"{Fore.BLUE}User Input{Fore.RESET}")
+    print(data_store.get_data(DataNames.USER_INPUT))
+
+    print(f"{Fore.BLUE}Search Keywords{Fore.RESET}")
+    print(data_store.get_data(DataNames.SEARCH_KEYWORDS))
+
+    print(f"{Fore.BLUE}Restrictions{Fore.RESET}")
+    print(data_store.get_data(DataNames.RESTRICTIONS))
+
+    print(f"{Fore.BLUE}Merged Data{Fore.RESET}")
+    print(data_store.get_data(DataNames.MERGED_DATA))
+
+    print(f"{Fore.BLUE}Links{Fore.RESET}")
+    print(data_store.get_data(DataNames.LINKS))
+
+    print(f"{Fore.BLUE}Result{Fore.RESET}")
     print(data_store.get_data(DataNames.RESULT))
