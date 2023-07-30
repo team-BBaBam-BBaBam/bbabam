@@ -2,8 +2,9 @@ from bbabam.flow.components.task import SingleTask, TaskStateType
 from bbabam.flow.tasks.names import TaskNames, DataNames
 
 class Merger(SingleTask):
-    def __init__(self):
+    def __init__(self, max_contents_token_count=3000):
         super().__init__(TaskNames.MERGER)
+        self.max_contents_token_count = max_contents_token_count
 
     def run(self):
         self.update_state(TaskStateType.RUNNING, "Merging")
@@ -54,7 +55,7 @@ class Merger(SingleTask):
         '''
 
         # get top k data
-        max_token_count = 3000
+        max_token_count = self.max_contents_token_count
         picked_data = []
         token_count = 0
         for data in sorted_data:
@@ -85,13 +86,13 @@ class Merger(SingleTask):
         merged_text = ""
         link_idx = 0
         for link, chunks in merged_data.items():
-            merged_text += f"[link {link_idx}/{len(merged_data)} start]\n{link}\n"
+            merged_text += f"[link {link_idx + 1}/{len(merged_data)} start]\n{link}\n"
             for i, chunk in enumerate(chunks):
                 merged_text += f"[chunk {i+1}/{len(chunks)} start]\n{chunk['text']}\n[chunk {i+1}/{len(chunks)} end]\n"
-            merged_text += f"[link {link_idx}/{len(merged_data)} end]\n"
+            merged_text += f"[link {link_idx + 1}/{len(merged_data)} end]\n"
             link_idx += 1
         
         self.data_store.set_data(DataNames.MERGED_DATA, merged_text)
-
+        
         self.update_state(TaskStateType.FINISHED, "Merging Finished")
         

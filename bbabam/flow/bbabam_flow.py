@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Union
 
 from bbabam.flow.tasks.names import DataNames
 from bbabam.flow.components.task_data_store import TaskDataStore
@@ -13,12 +13,24 @@ from bbabam.flow.tasks.poi_needs_generator import POiNeedsGenerator
 from bbabam.flow.tasks.chunk_divisor import ChunkDivisor 
 from bbabam.flow.tasks.relevance_estimator import RelevanceEstimator
 from bbabam.flow.tasks.merger import Merger
+from bbabam.flow.tasks.result_generator import ResultGenerator
 
-def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], None]) -> TaskDataStore:
+
+class FlowConfigurations:
+    keyword_num = 3
+    crawling_text_num = 10
+    chunk_size = 3000
+    chunk_overlap = 0
+    max_contents_token_count=10000
+
+def start_flow(user_input: str, configurations:Union[FlowConfigurations, None], on_state_changed: Callable[[MultiTaskState], None]) -> TaskDataStore:
     # Construct Flow
     data_store = TaskDataStore()
     data_store.set_data(DataNames.USER_INPUT, user_input)
 
+    if configurations is None:
+        configurations = FlowConfigurations()
+    
     flow = SequentialRunner(
         "bbabam",
         [
@@ -28,8 +40,8 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
                     SequentialRunner(
                         "meterial preparation",
                         [
-                            SearchKeywordGenerator(),
-                            Crawler(),
+                            SearchKeywordGenerator(keyword_num=configurations.keyword_num),
+                            Crawler(crawling_text_num=configurations.crawling_text_num),
                         ],
                     ),
                     RestrictionGenerator(),
@@ -41,9 +53,9 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
                     SequentialRunner(
                         "meterial processing",
                         [
-                            ChunkDivisor(),
+                            ChunkDivisor(chunk_size=configurations.chunk_size, chunk_overlap=configurations.chunk_overlap),
                             RelevanceEstimator(),
-                            Merger(),
+                            Merger(max_contents_token_count=configurations.max_contents_token_count),
                         ],
                     ),
                     POiNeedsGenerator(),
@@ -52,7 +64,7 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
             ParallelRunner(
                 "generation",
                 [
-
+                    ResultGenerator(),
                 ],
             ),
         ],

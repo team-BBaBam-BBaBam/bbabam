@@ -33,6 +33,9 @@ class ResultGenerator(OpenAIChatModel):
         system_prompt = self.system_prompt + data["search_text"] + data["restriction"]
         user_input = """This is result from search engine: \n""" + data["information"]
 
-        message = self.create_message(system_input=system_prompt, user_input=user_input)
-        reply = super().get_reply(message)
+        reply = super().forward(
+            user_input,
+            get_system_prompt=lambda: system_prompt,
+        )
+
         return reply.respond, reply.respond_with_message, reply.info

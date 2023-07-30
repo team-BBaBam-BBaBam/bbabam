@@ -5,9 +5,11 @@ from bbabam.modules.chunk_divisor import ChunkDivisor as ChunkDivisorModule
 
 
 class ChunkDivisor(SingleTask):
-    def __init__(self):
+    def __init__(self, chunk_size=1000, chunk_overlap=20):
         super().__init__(TaskNames.CHUNK_DIVISOR)
         self.chunk_divisor = ChunkDivisorModule()
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
 
     def run(self):
         self.update_state(TaskStateType.RUNNING, "Dividing Chunk")
@@ -34,7 +36,9 @@ class ChunkDivisor(SingleTask):
                 lambda data: {
                     "keywords": data["keywords"],
                     "contents": self.chunk_divisor.divide_chunks(
-                        filter(lambda x: x["text"] is not None, data["contents"])
+                        filter(lambda x: x["text"] is not None, data["contents"]),
+                        chunk_size=self.chunk_size,
+                        chunk_overlap=self.chunk_overlap,
                     ),
                 },
                 crawled_data,

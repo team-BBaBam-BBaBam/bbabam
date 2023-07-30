@@ -67,9 +67,7 @@ class SocialCrawl:
             times = (t - s) * (len(self.keywords) - i - 1) / (i + 1)
             if on_print_message is not None:
                 on_print_message(
-                    f"\r[{i+1}/{len(self.keywords)}]|"
-                    + self.keywords[i]
-                    + f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]"
+                    f"{self.keywords[i]} Completed... ({i+1}/{len(self.keywords)}) | [Remaining time:{self.getTime(times)}]"
                 )
             else:
                 print(
