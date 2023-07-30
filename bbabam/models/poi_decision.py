@@ -18,10 +18,9 @@ class PoiDecisionMaker(ChatModel):
         stable: bool = True,
         more_tokens: bool = False,
     ):
-        super.__init__(
+        super().__init__(
             model_type, POI_DESCISION_MAKER_PROMPT, temperature, stable, more_tokens
         )
-        print(self.chatmodel)
 
     def __repr__(self) -> str:
         return "poi_decision_maker"

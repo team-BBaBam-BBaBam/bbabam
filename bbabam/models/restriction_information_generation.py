@@ -17,6 +17,7 @@ Condition:
 7. Do not use the words 'attendant' or 'customer' in the Instructions.
 8. If necessary, it is okay to provide the example text format(answer template) of the answer in the Instruction. You SHOULD NOT include actual contents in example text format.
 9. Instructions must be written in English.
+10. Attendants will write answers in the same language as the 'search keyword'.
 
 
 Your output MUST follow this format:

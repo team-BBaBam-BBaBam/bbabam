@@ -1,7 +1,7 @@
 import openai
 
 
-from typing import Dict, List
+from typing import Dict, List, Union, Callable
 from dataclasses import dataclass
 
 
@@ -60,7 +60,7 @@ class ChatModel:
 
     def create_default_message(self, user_input: str) -> MessageType:
         return self.create_message(self.system_prompt, user_input)
-
+    
     def create_message(self, system_input: str, user_input: str) -> MessageType:
         return [
             {"role": "system", "content": system_input},
@@ -78,8 +78,11 @@ class ChatModel:
             info={**respond.info},
         )
 
-    def forward(self, user_input: str) -> ChatModelRespondType:
-        message = self.create_default_message(user_input)
+    def forward(self, user_input: str, get_system_prompt:Union[Callable[[], str], None]=None) -> ChatModelRespondType:
+        if get_system_prompt is None:
+            message = self.create_default_message(user_input)
+        else:
+            message = self.create_message(get_system_prompt(), user_input)
         reply = self.get_reply(message)
         return reply
 
@@ -87,13 +90,13 @@ class ChatModel:
 # class OpenAIEmbeddingModel:
 #     # 워드임베딩 api는 하나밖에 없으므로 모델명은 인풋으로 받지 않음.
 #     # 인풋문장을 넣어주면 출력되는 get_embedding 함수가 있음.
-
+#
 #     def get_embeddings(self, input):
 #         embeddings = openai.Embedding.create(
 #             model="text-embedding-ada-002", input=input
 #         )
 #         return embeddings
-
+#
 #     def get_vector(self, input):
 #         return self.get_embeddings(input).data[0].embedding
 
