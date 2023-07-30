@@ -1,6 +1,7 @@
 from bbabam.flow.components.task import SingleTask, TaskStateType
 from bbabam.flow.tasks.names import TaskNames, DataNames
 
+
 class Merger(SingleTask):
     def __init__(self, max_contents_token_count=3000):
         super().__init__(TaskNames.MERGER)
@@ -10,7 +11,7 @@ class Merger(SingleTask):
         self.update_state(TaskStateType.RUNNING, "Merging")
 
         chunk_divided_data = self.data_store.get_data(DataNames.RELEVANCE_DATA)
-        '''
+        """
         chunk_divided_data 데이터 형태:
         [
             {
@@ -26,22 +27,24 @@ class Merger(SingleTask):
                 ]
             }
         ]
-        '''
+        """
 
         sorted_data = []
         # flatten
         for data in chunk_divided_data:
             for chunk in data["chunks"]:
-                sorted_data.append({
-                    "link": data["link"],
-                    "keywords": data["keywords"],
-                    "chunk_text": chunk["text"],
-                    "similarity": chunk["similarity"],
-                    "token_count": chunk["token_count"]
-                })
+                sorted_data.append(
+                    {
+                        "link": data["link"],
+                        "keywords": data["keywords"],
+                        "chunk_text": chunk["text"],
+                        "similarity": chunk["similarity"],
+                        "token_count": chunk["token_count"],
+                    }
+                )
         # sort
         sorted_data.sort(key=lambda data: data["similarity"], reverse=True)
-        '''
+        """
         sorted_data 데이터 형태:
         [
             {
@@ -52,7 +55,7 @@ class Merger(SingleTask):
                 "token_count": 123
             }
         ]
-        '''
+        """
 
         # get top k data
         max_token_count = self.max_contents_token_count
@@ -68,17 +71,21 @@ class Merger(SingleTask):
         merged_data = {}
         for data in picked_data:
             if data["link"] not in merged_data:
-                merged_data[data["link"]] = [{
-                    "link": data["link"],
-                    "keywords": data["keywords"],
-                    "text": data["chunk_text"]
-                }]
+                merged_data[data["link"]] = [
+                    {
+                        "link": data["link"],
+                        "keywords": data["keywords"],
+                        "text": data["chunk_text"],
+                    }
+                ]
             else:
-                merged_data[data["link"]].append({
-                    "link": data["link"],
-                    "keywords": data["keywords"],
-                    "text": data["chunk_text"]
-                })
+                merged_data[data["link"]].append(
+                    {
+                        "link": data["link"],
+                        "keywords": data["keywords"],
+                        "text": data["chunk_text"],
+                    }
+                )
 
         # plain text로 만들기
         # 규칙
@@ -91,9 +98,8 @@ class Merger(SingleTask):
                 merged_text += f"[chunk {i+1}/{len(chunks)} start]\n{chunk['text']}\n[chunk {i+1}/{len(chunks)} end]\n"
             merged_text += f"[link {link_idx + 1}/{len(merged_data)} end]\n"
             link_idx += 1
-        
+
         self.data_store.set_data(DataNames.MERGED_DATA, merged_text)
         self.data_store.set_data(DataNames.LINKS, list(merged_data.keys()))
-        
+
         self.update_state(TaskStateType.FINISHED, "Merging Finished")
-        
