@@ -40,15 +40,15 @@ class ResultGenerator(ChatModel):
     def forward(self, user_input: str, restriction: str, information: str):
         system_prompt = (
             self.system_prompt
-            + "\nUser Input: \n\"\"\"\n"
+            + '\nUser Input: \n"""\n'
             + user_input
-            + "\n\"\"\"\n"
-            + "Instruction:  \n\"\"\"\n"
+            + '\n"""\n'
+            + 'Instruction:  \n"""\n'
             + restriction
-            + "\n\"\"\"\n"
+            + '\n"""\n'
         )
 
-        user_input = "Result of Searched Data: \n\"\"\"\n" + information + "\n\"\"\"\n"
+        user_input = 'Result of Searched Data: \n"""\n' + information + '\n"""\n'
 
         reply = super().forward(
             user_input,
