@@ -19,9 +19,9 @@ from bbabam.flow.tasks.result_generator import ResultGenerator
 class FlowConfigurations:
     keyword_num = 3
     crawling_text_num = 10
-    chunk_size = 3000
-    chunk_overlap = 0
-    max_contents_token_count=10000
+    chunk_size = 4000
+    chunk_overlap = 50
+    max_contents_token_count=12000
 
 def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], None], configurations:Union[FlowConfigurations, None]=None) -> TaskDataStore:
     # Construct Flow
