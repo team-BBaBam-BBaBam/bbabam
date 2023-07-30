@@ -1,5 +1,5 @@
 import re
-from .base_model import OpenAIChatModel
+from .base_model import ChatModel
 
 POI_DESCISION_MAKER_PROMPT = """You will be given "search keyword" and "request in natural language". 
         This inputs might include the context of information user wants to know. 
@@ -10,7 +10,7 @@ POI_DESCISION_MAKER_PROMPT = """You will be given "search keyword" and "request 
 """
 
 
-class PoiDecisionMaker(OpenAIChatModel):
+class PoiDecisionMaker(ChatModel):
     def __init__(
         self,
         model_type: str = "gpt-3.5",

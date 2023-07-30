@@ -1,4 +1,4 @@
-from .base_model import OpenAIChatModel
+from .base_model import ChatModel
 from typing import Dict
 
 RESULT_GENERATOR_PROMPT = """
@@ -19,7 +19,7 @@ You should output overall answer for the user input.
 """
 
 
-class ResultGenerator(OpenAIChatModel):
+class ResultGenerator(ChatModel):
     def __init__(
         self,
         model_type: str = "gpt-3.5",
