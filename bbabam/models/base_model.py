@@ -35,7 +35,7 @@ class ChatModel:
         temperature: float = 1.0,
         stable: bool = False,
         more_tokens: bool = False,
-        provider: str = "kakao",
+        provider: str = "openai",
     ):
         assert provider in PROVIDER_LIST
         self.model_type = model_type
