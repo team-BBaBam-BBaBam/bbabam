@@ -10,10 +10,11 @@ from bbabam.flow.tasks.search_keyword_generator import SearchKeywordGenerator
 from bbabam.flow.tasks.crawler import Crawler
 from bbabam.flow.tasks.restriction_generator import RestrictionGenerator
 from bbabam.flow.tasks.poi_needs_generator import POiNeedsGenerator
-from bbabam.flow.tasks.chunk_divisor import ChunkDivisor 
+from bbabam.flow.tasks.chunk_divisor import ChunkDivisor
 from bbabam.flow.tasks.relevance_estimator import RelevanceEstimator
 from bbabam.flow.tasks.merger import Merger
 from bbabam.flow.tasks.result_generator import ResultGenerator
+from bbabam.flow.tasks.database import DatabaseManager
 
 
 class FlowConfigurations:
@@ -21,16 +22,21 @@ class FlowConfigurations:
     crawling_text_num = 10
     chunk_size = 4000
     chunk_overlap = 50
-    max_contents_token_count=12000
+    max_contents_token_count = 12000
 
-def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], None], configurations:Union[FlowConfigurations, None]=None) -> TaskDataStore:
+
+def start_flow(
+    user_input: str,
+    on_state_changed: Callable[[MultiTaskState], None],
+    configurations: Union[FlowConfigurations, None] = None,
+) -> TaskDataStore:
     # Construct Flow
     data_store = TaskDataStore()
     data_store.set_data(DataNames.USER_INPUT, user_input)
 
     if configurations is None:
         configurations = FlowConfigurations()
-    
+
     flow = SequentialRunner(
         "bbabam",
         [
@@ -40,8 +46,11 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
                     SequentialRunner(
                         "meterial preparation",
                         [
-                            SearchKeywordGenerator(keyword_num=configurations.keyword_num),
+                            SearchKeywordGenerator(
+                                keyword_num=configurations.keyword_num
+                            ),
                             Crawler(crawling_text_num=configurations.crawling_text_num),
+                            DatabaseManager(),
                         ],
                     ),
                     RestrictionGenerator(),
@@ -53,13 +62,18 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
                     SequentialRunner(
                         "meterial processing",
                         [
-                            ChunkDivisor(chunk_size=configurations.chunk_size, chunk_overlap=configurations.chunk_overlap),
+                            ChunkDivisor(
+                                chunk_size=configurations.chunk_size,
+                                chunk_overlap=configurations.chunk_overlap,
+                            ),
                             RelevanceEstimator(),
-                            Merger(max_contents_token_count=configurations.max_contents_token_count),
+                            Merger(
+                                max_contents_token_count=configurations.max_contents_token_count
+                            ),
                         ],
                     ),
                     POiNeedsGenerator(),
-                ],  
+                ],
             ),
             ParallelRunner(
                 "generation",
@@ -71,7 +85,9 @@ def start_flow(user_input: str, on_state_changed: Callable[[MultiTaskState], Non
     )
 
     # Run Flow
-    flow.initialize_task(data_store.generate_new_task_id(), on_state_changed, data_store)
+    flow.initialize_task(
+        data_store.generate_new_task_id(), on_state_changed, data_store
+    )
     flow.run()
 
     return data_store

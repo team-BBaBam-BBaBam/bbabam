@@ -4,6 +4,7 @@ from bbabam.flow.tasks.names import TaskNames, DataNames
 from bbabam.modules.crawling_module.crawling import SocialCrawl
 from bbabam.database import save_multiple_data
 
+
 class Crawler(SingleTask):
     def __init__(self, crawling_text_num=20):
         super().__init__(TaskNames.CRAWLER)
@@ -19,11 +20,10 @@ class Crawler(SingleTask):
             self.update_state(TaskStateType.RUNNING, message)
 
         crawled_data = self.crawler.forward(
-            search_keywords, txt_num=self.crawling_text_num, on_print_message=on_progress
+            search_keywords,
+            txt_num=self.crawling_text_num,
+            on_print_message=on_progress,
         )
-
-        for data in crawled_data:
-            save_multiple_data(data["keywords"], data["contents"])
 
         self.data_store.set_data(DataNames.CRAWLED_DATA, crawled_data)
 
