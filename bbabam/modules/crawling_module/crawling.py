@@ -103,8 +103,8 @@ class POICrawl:
         
         poi_result = []
 
-        # try:
-        for i in range(len(self.place_name_list)):
+        try:
+            for i in range(len(self.place_name_list)):
                 place_name, address_name, position_XY, place_url, cate_1, cate_2, phone_num = self.crawler.get_Detail(self.place_name_list[i], version=1)
                 poi_result.append({'name': place_name, 'address': address_name, 'loc_X': position_XY[0], 'loc_Y': position_XY[1], 'url': place_url, 'cate1': cate_1, 'cate2': cate_2, 'callnum': phone_num})
                 t = time.time()
@@ -120,33 +120,53 @@ class POICrawl:
                         + f"Completed...|[Remaining time:{self.getTime(times)}]",
                         end="",
                     )
-        # except:
-            # pass
+        except:
+            pass
 
         return poi_result
     
 
 class PathCrawl:
     def __init__(self):
-        self.PATHFINDING_API_KEY = "hxnpCkjq2DAusDp/rpdEfA"
+        self.GOOGLE_API_KEY = "AIzaSyApdX8yTMrYmjbec6OppmA9Cp9p1vOBL0k"
         self.crawler = TB.KakaoCrawler()
 
     def forward(self, pathfinding):
         s = time.time()
         self.pathfinding_list = pathfinding[2:-2].split(', ')
-        
         pathfinding_result = []
 
         try:
             pathfinding_loc = []
             for i in range(len(self.pathfinding_list)):
-                position_XY = self.crawler.get_PosXY(self.pathfinding_list[i])
-                pathfinding_loc.append(position_XY)
-            apiurl = f"https://api.odsay.com/v1/api/searchPubTransPathT?SX={pathfinding_loc[0][0]}&SY={pathfinding_loc[0][1]} \
-                        &EX={pathfinding_loc[1][0]}&{pathfinding_loc[1][1]}&apiKey={self.PATHFINDING_API_KEY}"
+                    position_XY = self.crawler.get_PosXY(self.pathfinding_list[i])
+                    pathfinding_loc.append(position_XY)
+            apiurl = f"https://maps.googleapis.com/maps/api/directions/json?origin={pathfinding_loc[0][1]},{pathfinding_loc[0][0]} \
+                                &destination={pathfinding_loc[1][1]},{pathfinding_loc[1][0]}&mode=transit&key={self.GOOGLE_API_KEY}"
             jsonobj = requests.get(apiurl).json()
-            pathfinding_result.append(jsonobj)
-    
+                
+            stepslist = []
+            for i in range(len(jsonobj['routes'][0]['legs'][0]['steps'])):
+                    stepslist.append({"index": str(i)+" to "+str(i+1),
+                                    "distance": jsonobj['routes'][0]['legs'][0]['steps'][i]['distance'],
+                                    "duration": jsonobj['routes'][0]['legs'][0]['steps'][i]['duration'],
+                                    "start_location": jsonobj['routes'][0]['legs'][0]['steps'][i]['start_location'],
+                                    "end_location": jsonobj['routes'][0]['legs'][0]['steps'][i]['end_location'],
+                                    "html_instructions": jsonobj['routes'][0]['legs'][0]['steps'][i]['html_instructions'],
+                                    "travel_mode": jsonobj['routes'][0]['legs'][0]['steps'][i]['travel_mode'],
+                                    "steps" if jsonobj['routes'][0]['legs'][0]['steps'][i]['travel_mode'] == 'WALKING' else "transit_details": \
+                                    jsonobj['routes'][0]['legs'][0]['steps'][i]['steps'] if jsonobj['routes'][0]['legs'][0]['steps'][i]['travel_mode'] == 'WALKING' else jsonobj['routes'][0]['legs'][0]['steps'][i]['transit_details'],
+                                    })
+
+            path_parsed = {"Total distance": jsonobj['routes'][0]['legs'][0]['distance'],
+                "Total duration": jsonobj['routes'][0]['legs'][0]['duration'],
+                "Startpoint": {'lat': pathfinding_loc[0][1], 'lon': pathfinding_loc[0][0]},
+                "Endpoint": {'lat': pathfinding_loc[1][1], 'lon': pathfinding_loc[1][0]},
+                "Steps": stepslist
+                }
+
+            pathfinding_result.append(path_parsed)
+
         except:
             pass
 
