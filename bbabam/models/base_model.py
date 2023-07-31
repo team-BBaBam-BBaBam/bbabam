@@ -37,7 +37,7 @@ class ChatModel:
         more_tokens: bool = False,
         provider: str = "openai",
     ):
-        assert provider in PROVIDER_LIST
+        assert provider in PROVIDER_LIST, f"Provider Not Supported.(supported : {str(PROVIDER_LIST)})"
         self.model_type = model_type
         self.temperature = temperature
         self.system_prompt = system_prompt

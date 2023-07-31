@@ -52,7 +52,7 @@ class KakaoProvider:
         }
         header = {
             "Content-Type": "application/json",
-            "Authorization": "KakaoAK cb2eeb1781e4465962d1879576e9c218",
+            "Authorization": f"KakaoAK {kakao_key.get_key()}",
         }
         res = requests.post(
             KAKAO_GPT_ENDPOINT,
@@ -60,14 +60,7 @@ class KakaoProvider:
             data=json.dumps(data),
         )
         res = res.json()
-        print(kakao_prompt)
-        print()
-        print()
-        print("real_answer")
 
-        print(res["generations"][0]["text"])
-        print()
-        print()
 
         return ReturnType(
             respond=res["generations"][0]["text"],
