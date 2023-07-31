@@ -1,4 +1,4 @@
 from .keyword_generator import KeywordGenerator
-from .poi_decision import PoiDecisionMaker
+from .place_decision import PlaceDataExtractor
 from .restriction_information_generation import RestrictionInformationGenerator
 from .result_generator import ResultGenerator

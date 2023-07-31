@@ -80,3 +80,15 @@ def run_bbabam(user_input: str):
 
     print(f"{Fore.BLUE}Result{Fore.RESET}")
     print(data_store.get_data(DataNames.RESULT))
+
+    print(f"{Fore.BLUE}Place Keywords{Fore.RESET}")
+    print(data_store.get_data(DataNames.PLACE_KEYWORDS))
+
+    print(f"{Fore.BLUE}Path Keywords{Fore.RESET}")
+    print(data_store.get_data(DataNames.PATH_KEYWORDS))
+
+    print(f"{Fore.BLUE}Place Crawled Data{Fore.RESET}")
+    print(data_store.get_data(DataNames.PLACE_DATA))
+
+    print(f"{Fore.BLUE}Pathfinding Crawled Data{Fore.RESET}")
+    print(data_store.get_data(DataNames.PATHFINDING_DATA))

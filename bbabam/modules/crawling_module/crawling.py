@@ -1,6 +1,7 @@
 import bbabam.modules.crawling_module.modules.tripbuilder_crawler as TB
 import warnings
 import time
+import requests
 
 import multiprocessing as mp
 
@@ -88,5 +89,65 @@ class SocialCrawl:
 class POICrawl:
     def __init__(self):
         self.crawler = TB.KakaoCrawler()
-        self.keywords = []
-        self.contents = []
+
+    def getTime(self, sec):
+        sec = int(sec)
+        h = sec // 3600
+        m = (sec - h * 3600) // 60
+        s = (sec - h * 3600) % 60
+        return f"{h}h {m}m {s}s"
+    
+    def forward(self, place, on_print_message=None):
+        s = time.time()
+        self.place_name_list = place[2:-2].split(', ')
+        
+        poi_result = []
+
+        # try:
+        for i in range(len(self.place_name_list)):
+                place_name, address_name, position_XY, place_url, cate_1, cate_2, phone_num = self.crawler.get_Detail(self.place_name_list[i], version=1)
+                poi_result.append({'name': place_name, 'address': address_name, 'loc_X': position_XY[0], 'loc_Y': position_XY[1], 'url': place_url, 'cate1': cate_1, 'cate2': cate_2, 'callnum': phone_num})
+                t = time.time()
+                times = (t - s) * (len(self.place_name_list) - i - 1) / (i + 1)
+                if on_print_message is not None:
+                    on_print_message(
+                        f"{self.place_name_list[i]} Completed... ({i+1}/{len(self.place_name_list)}) | [Remaining time:{self.getTime(times)}]"
+                    )
+                else:
+                    print(
+                        f"\r[{i+1}/{len(self.place_name_list)}]|"
+                        + self.place_name_list[i]
+                        + f"Completed...|[Remaining time:{self.getTime(times)}]",
+                        end="",
+                    )
+        # except:
+            # pass
+
+        return poi_result
+    
+
+class PathCrawl:
+    def __init__(self):
+        self.PATHFINDING_API_KEY = "hxnpCkjq2DAusDp/rpdEfA"
+        self.crawler = TB.KakaoCrawler()
+
+    def forward(self, pathfinding):
+        s = time.time()
+        self.pathfinding_list = pathfinding[2:-2].split(', ')
+        
+        pathfinding_result = []
+
+        try:
+            pathfinding_loc = []
+            for i in range(len(self.pathfinding_list)):
+                position_XY = self.crawler.get_PosXY(self.pathfinding_list[i])
+                pathfinding_loc.append(position_XY)
+            apiurl = f"https://api.odsay.com/v1/api/searchPubTransPathT?SX={pathfinding_loc[0][0]}&SY={pathfinding_loc[0][1]} \
+                        &EX={pathfinding_loc[1][0]}&{pathfinding_loc[1][1]}&apiKey={self.PATHFINDING_API_KEY}"
+            jsonobj = requests.get(apiurl).json()
+            pathfinding_result.append(jsonobj)
+    
+        except:
+            pass
+
+        return pathfinding_result
