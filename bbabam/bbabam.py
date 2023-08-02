@@ -57,14 +57,16 @@ def on_state_changed(state: MultiTaskState, verbose: bool = True):
     lock.release()
 
 
-def run_bbabam(user_input: str, verbose: bool = True):
+def run_bbabam(user_input: str, verbose: bool = True, socket_module=None):
     global lock
     lock = threading.Lock()
 
     _on_state_changed = partial(on_state_changed, verbose=verbose)
 
     data_store: TaskDataStore = bbabam_flow.start_flow(
-        user_input=user_input, on_state_changed=_on_state_changed
+        user_input=user_input,
+        on_state_changed=_on_state_changed,
+        socket_module=socket_module,
     )
 
     if verbose:

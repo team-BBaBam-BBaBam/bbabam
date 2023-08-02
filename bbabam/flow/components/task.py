@@ -140,9 +140,8 @@ class _LateInitTask(_Task):
 
 
 class SingleTask(_LateInitTask):
-    def __init__(self, task_name: str, socket_module=None):
+    def __init__(self, task_name: str):
         super().__init__(task_name)
-        self.socket_module = socket_module
 
     def initialize_task(
         self,

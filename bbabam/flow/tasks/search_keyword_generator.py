@@ -21,5 +21,4 @@ class SearchKeywordGenerator(SingleTask):
         self.data_store.set_data(DataNames.SEARCH_KEYWORDS, keywords)
         self.data_store.set_task_message(TaskNames.SEARCH_KEYWORD_GENERATOR, message)
         self.data_store.set_task_info(TaskNames.SEARCH_KEYWORD_GENERATOR, info)
-
         self.update_state(TaskStateType.FINISHED, "Search Keywords Generated")

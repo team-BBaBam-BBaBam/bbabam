@@ -1,5 +1,6 @@
 from typing import Callable, Union
 from functools import partial
+import ast
 
 from bbabam.flow.tasks.names import DataNames
 from bbabam.flow.components.task_data_store import TaskDataStore
@@ -19,6 +20,7 @@ from bbabam.flow.tasks.result_generator import ResultGenerator
 from bbabam.flow.tasks.database import DatabaseManager
 from bbabam.flow.tasks.place_crawler import PlaceCrawler
 from bbabam.flow.tasks.place_crawler import PathCrawler
+from bbabam.flow.tasks.socket_emit import ScoketEmit
 
 
 class FlowConfigurations:
@@ -53,11 +55,18 @@ def start_flow(
                         [
                             SearchKeywordGenerator(
                                 keyword_num=configurations.keyword_num,
+                            ),
+                            ScoketEmit(
                                 socket_module=socket_module,
+                                payloads={"search_keywords": DataNames.SEARCH_KEYWORDS},
+                                emit_event="start_crawling",
                             ),
                             Crawler(
                                 crawling_text_num=configurations.crawling_text_num,
+                            ),
+                            ScoketEmit(
                                 socket_module=socket_module,
+                                emit_event="finish_crawling",
                             ),
                             DatabaseManager(),
                         ],
@@ -86,7 +95,12 @@ def start_flow(
             SequentialRunner(
                 "generation",
                 [
-                    ResultGenerator(socket_module=socket_module),
+                    ResultGenerator(),
+                    ScoketEmit(
+                        socket_module=socket_module,
+                        payloads={"urls": DataNames.LINKS, "result": DataNames.RESULT},
+                        emit_event="finish_generation",
+                    ),
                     ParallelRunner(
                         "Place Data Generation",
                         [
@@ -94,14 +108,30 @@ def start_flow(
                                 "POI Data Crawl",
                                 [
                                     PlaceInfoNeedsGenerator(),
-                                    PlaceCrawler(socket_module=socket_module),
+                                    PlaceCrawler(),
+                                    ScoketEmit(
+                                        socket_module=socket_module,
+                                        payloads={
+                                            "place_keywords": DataNames.PLACE_KEYWORDS,
+                                            "place_crawled_data": DataNames.PLACE_DATA,
+                                        },
+                                        emit_event="poi_generation",
+                                    ),
                                 ],
                             ),
                             SequentialRunner(
                                 "Path Data Crawl",
                                 [
                                     PathInfoNeedsGenerator(),
-                                    PathCrawler(socket_module=socket_module),
+                                    PathCrawler(),
+                                    ScoketEmit(
+                                        socket_module=socket_module,
+                                        payloads={
+                                            "path_keywords": DataNames.PATH_KEYWORDS,
+                                            "path_crawled_data": DataNames.PATHFINDING_DATA,
+                                        },
+                                        emit_event="path_generation",
+                                    ),
                                 ],
                             ),
                         ],
