@@ -236,50 +236,43 @@ class KakaoCrawler:
         )
 
     def get_Detail(self, name, version=0):
-        url = f"https://dapi.kakao.com/v2/local/search/keyword.json?query={name}"
+        url = f"https://dapi.kakao.com/v2/local/search/keyword.json?query={name}&"
 
         result = requests.get(url, headers={"Authorization": f"KakaoAK {self.API_KEY}"})
         json_obj = result.json()
 
         try:
+            place_name = json_obj["documents"][0]["place_name"]
+            address_name = json_obj["documents"][0]["address_name"]
             x_position = json_obj["documents"][0]["x"]
             y_position = json_obj["documents"][0]["y"]
             place_url = json_obj["documents"][0]["place_url"]
-            detail_category = json_obj["documents"][0]["category_name"]
             position_XY = [x_position, y_position]
             phone_num = json_obj["documents"][0]["phone"]
-            category = json_obj["documents"][0]["category_group_name"]
+            cate_1 = json_obj["documents"][0]["category_group_name"]
             cate_2 = json_obj["documents"][0]["category_name"]
-            cate_2 = cate_2.split(">")[-(1 + version)].strip()
 
             if len(phone_num) == 0:
                 phone_num = np.nan
-
+            
             ck_valid = 1
-
-            if category in self.place_filter:
-                cate_1 = "관광지"
-            elif category in self.rest_filter:
-                cate_1 = "음식점"
-            elif category in self.cafe_filter:
-                cate_1 = "카페"
-            else:
-                ck_valid = 0
 
         except:
             ck_valid = 0
 
         if ck_valid == 0:
+            place_name = np.nan
+            address_name = np.nan
             position_XY = [np.nan, np.nan]
             place_url = np.nan
             cate_1 = np.nan
             cate_2 = np.nan
             phone_num = np.nan
 
-        return position_XY, place_url, cate_1, cate_2, phone_num
+        return place_name, address_name, position_XY, place_url, cate_1, cate_2, phone_num
 
-    def get_PosXY(self, location, name):
-        url = f"https://dapi.kakao.com/v2/local/search/keyword.json?query={location + ' ' + name}"
+    def get_PosXY(self, name):
+        url = f"https://dapi.kakao.com/v2/local/search/keyword.json?query={name}"
 
         result = requests.get(url, headers={"Authorization": f"KakaoAK {self.API_KEY}"})
         json_obj = result.json()

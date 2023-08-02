@@ -1,0 +1,44 @@
+from .base_model import ChatModel
+
+PATH_DATA_EXTRACTOR_PROMPT = """Two Information is provided for you : user input, and the answer of user input.
+The answer of user input was attributed to user input. Simply you can understand the answer of user input is to solve needs in user input.
+Your task is to output if you would think that user needs pathfinding data from A to B, the two place name data A and B.
+
+1. You should output in Korean words, even if it is described as other language. For example, you can result in ['경복궁', '북촌한옥마을'], but you MUST NOT output like ['Gyoungbokgung', 'Buk-chon hanok village'].
+1-1. Usually place data are proper nouns. Don't try to generalize in common nouns.
+2. Output should be formed as ['장소1', '장소2'] at pathfinding. Ensure that pathfinding has to only result in one pair of the startpoint and endpoint.
+2-1. First index in list is startpoint, and second one is endpoint of pathfinding.
+2-3. Any informations are unnessasary, just output as: []
+3. In pathfinding, sometimes answer of user input can contain wrong informations. So if you can result in startpoint and endpoint directly from 'user input', you should directly output them.
+"""
+
+class PathDataExtractor(ChatModel):
+    def __init__(
+        self,
+        model_type: str = "gpt-4",
+        temperature: float = 0.2,
+        stable: bool = True,
+    ):
+        super().__init__(
+            model_type, PATH_DATA_EXTRACTOR_PROMPT, temperature, stable
+        )
+
+    def __repr__(self) -> str:
+        return "Path Keyword Generation"
+
+    def forward(self, user_input: str, result: str):
+        system_prompt = (
+            self.system_prompt
+            + "\nUser Input: \n\"\"\"\n"
+            + user_input
+            + "\n\"\"\"\n"
+        )
+
+        user_input = "Result of Searched Data: \n\"\"\"\n" + result + "\n\"\"\"\n"
+
+        reply = super().forward(
+            user_input,
+            get_system_prompt=lambda: system_prompt,
+        )
+
+        return reply.respond, reply.respond_with_message, reply.info

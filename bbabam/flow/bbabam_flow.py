@@ -9,13 +9,15 @@ from bbabam.flow.components.parallel_runner import ParallelRunner
 from bbabam.flow.tasks.search_keyword_generator import SearchKeywordGenerator
 from bbabam.flow.tasks.crawler import Crawler
 from bbabam.flow.tasks.restriction_generator import RestrictionGenerator
-from bbabam.flow.tasks.poi_needs_generator import POiNeedsGenerator
-from bbabam.flow.tasks.chunk_divisor import ChunkDivisor
+from bbabam.flow.tasks.place_keywords_generator import PlaceInfoNeedsGenerator
+from bbabam.flow.tasks.path_keywords_generator import PathInfoNeedsGenerator
+from bbabam.flow.tasks.chunk_divisor import ChunkDivisor 
 from bbabam.flow.tasks.relevance_estimator import RelevanceEstimator
 from bbabam.flow.tasks.merger import Merger
 from bbabam.flow.tasks.result_generator import ResultGenerator
 from bbabam.flow.tasks.database import DatabaseManager
-
+from bbabam.flow.tasks.place_crawler import PlaceCrawler
+from bbabam.flow.tasks.place_crawler import PathCrawler
 
 class FlowConfigurations:
     keyword_num = 3
@@ -72,13 +74,26 @@ def start_flow(
                             ),
                         ],
                     ),
-                    POiNeedsGenerator(),
-                ],
-            ),
-            ParallelRunner(
+                ],  
+                ),
+            SequentialRunner(
                 "generation",
                 [
                     ResultGenerator(),
+                    ParallelRunner("Place Data Generation", [
+                        SequentialRunner(
+                            "POI Data Crawl", [
+                                PlaceInfoNeedsGenerator(),
+                                PlaceCrawler(),
+                                ]
+                        ),
+                        SequentialRunner(
+                            "Path Data Crawl", [
+                                PathInfoNeedsGenerator(),
+                                PathCrawler(),
+                            ]
+                        )
+                    ])
                 ],
             ),
         ],

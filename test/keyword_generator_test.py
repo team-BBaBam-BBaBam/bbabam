@@ -6,7 +6,7 @@ if __name__ == "__main__":
     parent = os.path.dirname(current)
     sys.path.append(parent)
 
-from bbabam.models.poi_decision import PoiDecisionMaker
+from bbabam.models.place_decision import PlaceDataExtractor
 from bbabam.models.keyword_generator import KeywordGenerator
 from bbabam.modules.crawling_module.crawling import SocialCrawl
 from bbabam.database import Data, save_multiple_data
