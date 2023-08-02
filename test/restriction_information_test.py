@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parent = os.path.dirname(current)
     sys.path.append(parent)
 
-from bbabam.models.base_model import CHATGPT_3_MODEL_STABLE, CHATGPT_4_MODEL_STABLE
+from bbabam.models.provider.openai import CHATGPT_3_MODEL_STABLE, CHATGPT_4_MODEL_STABLE
 from bbabam.models.restriction_information_generation import (
     RestrictionInformationGenerator,
 )
@@ -30,7 +30,7 @@ def test_restriction_gen(user_input, gpt3=False):
     # Show Loading Spinner
     with yaspin(text="Generating...", spinner="dots") as spinner:
         s_time = time.time()
-        restriction, _ , _ = res_inform_gen.forward(user_input)
+        restriction, _, _ = res_inform_gen.forward(user_input)
         e_time = time.time()
         spinner.ok("✔")
 

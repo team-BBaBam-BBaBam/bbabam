@@ -7,8 +7,6 @@ import random
 import string
 
 
-# from ..bbabam.bbabam import run_bbabam
-
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
 app.config["SESSION_PERMANENT"] = False
@@ -17,31 +15,45 @@ Session(app)
 socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
 
 
+def generate_random_string(length):
+    possible_characters = string.ascii_letters + string.digits
+    random_string = "".join(random.choice(possible_characters) for _ in range(length))
+
+    return random_string
+
+
 @app.route("/")
 def main():
     return render_template("index.html")
 
 
+@socketio.on("connect", namespace="/search")
+def socket_connect():
+    sid = generate_random_string(64)
+    session["SESSION_ID"] = sid
+    join_room(sid)
+    emit("receive_id", sid)
+
+
 @socketio.on("start", namespace="/search")
-def socket_start(user_input: str):
+def socket_start(data):
+    user_input = data["search_text"]
+    room_id = data["key"]
     print(user_input)
-    if session.get("REQUEST_NUM"):
-        session["REQUEST_NUM"] += 1
-        if session["REQUEST_NUM"] > 3:
-            return 0
-        run_bbabam(user_input, verbose=False, socket_module=socketio)
-    else:
-        session["REQUEST_NUM"] = 0
-        run_bbabam(
-            user_input,
-            verbose=False,
-            socket_module={
-                "emit": socketio,
-                "app": app,
-                "namespace": "/search",
-            },
-        )
+    if not room_id:
+        return emit("error", "Cloud not find SessionId")
+
+    run_bbabam(
+        user_input,
+        verbose=False,
+        socket_module={
+            "emit": socketio,
+            "app": app,
+            "namespace": "/search",
+            "room": room_id,
+        },
+    )
 
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=80, debug=True)
+    socketio.run(app, host="0.0.0.0", port=8080, debug=True)
