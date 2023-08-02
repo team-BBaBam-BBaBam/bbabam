@@ -2,7 +2,7 @@ import bbabam.modules.crawling_module.modules.tripbuilder_crawler as TB
 import warnings
 import time
 import requests
-
+from multiprocessing import Process, Manager
 import multiprocessing as mp
 
 warnings.filterwarnings(action="ignore")
@@ -46,44 +46,42 @@ class SocialCrawl:
         s = (sec - h * 3600) % 60
         return f"{h}h {m}m {s}s"
 
-    def forward(self, keyword, txt_num=20, on_print_message=None):
-        self.keywords = keyword
-        s = time.time()
+    def single_keyword_search(self, keyword, txt_num, output_list):
+        conts = []
+        cont_lst = []
+        conts, tot_num, urls = self.Multi_Crawler(keyword, txt_num, int(txt_num / 2))
+        for j in range(len(conts)):
+            try:
+                text = conts[j].replace("\u200b", "")
+            except:
+                text = ""
+            cont_lst.append({"text": text, "link": urls[j]})
 
+        output_list.append({"keywords": keyword, "contents": cont_lst})
+
+    def forward(self, keywords, txt_num=20, on_print_message=None):
+        self.keywords = keywords
+        s = time.time()
         self.searched_context = []
 
-        for i in range(len(self.keywords)):
-            conts = []
-            cont_lst = []
-            conts, tot_num, urls = self.Multi_Crawler(
-                self.keywords[i], txt_num, int(txt_num / 2)
-            )
-            for j in range(len(conts)):
-                try:
-                    text = conts[j].replace("\u200b", "")
-                except:
-                    text = ""
-                cont_lst.append({"text": text, "link": urls[j]})
-            t = time.time()
-            times = (t - s) * (len(self.keywords) - i - 1) / (i + 1)
-            if on_print_message is not None:
-                on_print_message(
-                    f"{self.keywords[i]} Completed... ({i+1}/{len(self.keywords)}) | [Remaining time:{self.getTime(times)}]"
+        with Manager() as manager:
+            output_list = manager.list()  # Shared list
+            processes = []
+
+            for keyword in self.keywords:
+                p = Process(
+                    target=self.single_keyword_search,
+                    args=(keyword, txt_num, output_list),
                 )
-            else:
-                print(
-                    f"\r[{i+1}/{len(self.keywords)}]|"
-                    + self.keywords[i]
-                    + f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",
-                    end="",
-                )
-            self.searched_context = {"keywords": self.keywords[i], "contents": cont_lst}
-            self.output.append(self.searched_context)
-            if self.proxy_activate:
-                time.sleep(1)
-            else:
-                time.sleep(5)
-        return self.output
+                p.start()
+                processes.append(p)
+
+            for p in processes:
+                p.join()
+
+            self.output = list(output_list)  # Convert back to regular list
+
+            return self.output
 
 
 class POICrawl:
