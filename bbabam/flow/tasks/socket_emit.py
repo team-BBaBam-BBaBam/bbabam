@@ -22,6 +22,7 @@ class ScoketEmit(SingleTask):
 
     def emit(self, data: Dict):
         with self.app.app_context():
+            print(data, self.room, self.namespace)
             self.socket_module.emit(
                 self.emit_event, data, namespace=self.namespace, room=self.room
             )

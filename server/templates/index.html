@@ -34,7 +34,7 @@
         function Start() {
             const inp = document.getElementById("input_text")
             if ("key" in localStorage) {
-                socket.emit("start", { "search_text": inp.value, "key": localStorage.getItem("key") })
+                socket.emit("start", { "search_text": inp.value })
                 startButton.disabled = true; // 버튼을 비활성화
                 startTime = Date.now(); // 시작 시간을 저장
             }
@@ -50,7 +50,6 @@
             messageElement.appendChild(newMessageElement)
         }
 
-        socket.on('receive_id', (data) => { localStorage.setItem("key", data) });
         socket.on('start_crawling', (data) => { appendMessage('Start Crawling', data) });
         socket.on('finish_crawling', (data) => { appendMessage('Finish Crawling', data) });
         socket.on('finish_generation', (data) => {

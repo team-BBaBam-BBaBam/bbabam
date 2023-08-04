@@ -36,18 +36,16 @@ def status():
     return "Good!"
 
 
-@socketio.on("connect", namespace="/search")
-def socket_connect():
-    sid = generate_random_string(64)
-    session["SESSION_ID"] = sid
-    join_room(sid)
-    emit("receive_id", sid)
-
 
 @socketio.on("start", namespace="/search")
 def socket_start(data):
     user_input = data["search_text"]
-    room_id = data["key"]
+    print(user_input)
+    room_id = generate_random_string(64)
+    join_room(room_id)
+    print(room_id)
+    socketio.emit("start_crawling", "Hi!!", room = room_id, namespace="/search")
+    socketio.emit("start_crawling", "Hi2!!", namespace="/search")
     if not room_id or room_id == "":
         return emit("error", "Cloud not find SessionId")
     try:
@@ -58,13 +56,12 @@ def socket_start(data):
                 "emit": socketio,
                 "app": app,
                 "namespace": "/search",
-                "room": room_id,
+                "room": room_id
             },
         )
+        socket.emit("error", "end_error!", room = room_id, namespace="/search")
     except Exception as error:
         return emit("error", str(error))
-    finally:
-        return disconnect()
 
 
 if __name__ == "__main__":
