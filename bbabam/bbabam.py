@@ -92,3 +92,6 @@ def run_bbabam(user_input: str):
 
     print(f"{Fore.BLUE}Pathfinding Crawled Data{Fore.RESET}")
     print(data_store.get_data(DataNames.PATHFINDING_DATA))
+
+    print(f"{Fore.BLUE}Pathfinding Crawled Data{Fore.RESET}")
+    print(data_store.get_data(DataNames.ASSOCIATED_SEARCH))
