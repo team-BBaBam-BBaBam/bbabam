@@ -34,6 +34,7 @@ def status():
 
 
 
+
 @socketio.on("start", namespace="/search")
 def socket_start(data):
     user_input = data["search_text"]
