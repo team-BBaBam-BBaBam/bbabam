@@ -94,17 +94,36 @@ class POICrawl:
         m = (sec - h * 3600) // 60
         s = (sec - h * 3600) % 60
         return f"{h}h {m}m {s}s"
-    
+
     def forward(self, place, on_print_message=None):
         s = time.time()
-        self.place_name_list = place[2:-2].split(', ')
-        
+        self.place_name_list = place
+
         poi_result = []
 
         try:
             for i in range(len(self.place_name_list)):
-                place_name, address_name, position_XY, place_url, cate_1, cate_2, phone_num = self.crawler.get_Detail(self.place_name_list[i], version=1)
-                poi_result.append({'name': place_name, 'address': address_name, 'loc_X': position_XY[0], 'loc_Y': position_XY[1], 'url': place_url, 'cate1': cate_1, 'cate2': cate_2, 'callnum': phone_num})
+                (
+                    place_name,
+                    address_name,
+                    position_XY,
+                    place_url,
+                    cate_1,
+                    cate_2,
+                    phone_num,
+                ) = self.crawler.get_Detail(self.place_name_list[i], version=1)
+                poi_result.append(
+                    {
+                        "name": place_name,
+                        "address": address_name,
+                        "loc_X": float(position_XY[0]),
+                        "loc_Y": float(position_XY[1]),
+                        "url": place_url,
+                        "cate1": cate_1,
+                        "cate2": cate_2,
+                        "callnum": phone_num,
+                    }
+                )
                 t = time.time()
                 times = (t - s) * (len(self.place_name_list) - i - 1) / (i + 1)
                 if on_print_message is not None:
@@ -122,7 +141,7 @@ class POICrawl:
             pass
 
         return poi_result
-    
+
 
 class PathCrawl:
     def __init__(self):
@@ -131,37 +150,68 @@ class PathCrawl:
 
     def forward(self, pathfinding):
         s = time.time()
-        self.pathfinding_list = pathfinding[2:-2].split(', ')
+        self.pathfinding_list = pathfinding
         pathfinding_result = []
 
         try:
             pathfinding_loc = []
             for i in range(len(self.pathfinding_list)):
-                    position_XY = self.crawler.get_PosXY(self.pathfinding_list[i])
-                    pathfinding_loc.append(position_XY)
+                position_XY = self.crawler.get_PosXY(self.pathfinding_list[i])
+                pathfinding_loc.append(position_XY)
             apiurl = f"https://maps.googleapis.com/maps/api/directions/json?origin={pathfinding_loc[0][1]},{pathfinding_loc[0][0]} \
                                 &destination={pathfinding_loc[1][1]},{pathfinding_loc[1][0]}&mode=transit&key={self.GOOGLE_API_KEY}"
             jsonobj = requests.get(apiurl).json()
-                
-            stepslist = []
-            for i in range(len(jsonobj['routes'][0]['legs'][0]['steps'])):
-                    stepslist.append({"index": str(i)+" to "+str(i+1),
-                                    "distance": jsonobj['routes'][0]['legs'][0]['steps'][i]['distance'],
-                                    "duration": jsonobj['routes'][0]['legs'][0]['steps'][i]['duration'],
-                                    "start_location": jsonobj['routes'][0]['legs'][0]['steps'][i]['start_location'],
-                                    "end_location": jsonobj['routes'][0]['legs'][0]['steps'][i]['end_location'],
-                                    "html_instructions": jsonobj['routes'][0]['legs'][0]['steps'][i]['html_instructions'],
-                                    "travel_mode": jsonobj['routes'][0]['legs'][0]['steps'][i]['travel_mode'],
-                                    "steps" if jsonobj['routes'][0]['legs'][0]['steps'][i]['travel_mode'] == 'WALKING' else "transit_details": \
-                                    jsonobj['routes'][0]['legs'][0]['steps'][i]['steps'] if jsonobj['routes'][0]['legs'][0]['steps'][i]['travel_mode'] == 'WALKING' else jsonobj['routes'][0]['legs'][0]['steps'][i]['transit_details'],
-                                    })
 
-            path_parsed = {"Total distance": jsonobj['routes'][0]['legs'][0]['distance'],
-                "Total duration": jsonobj['routes'][0]['legs'][0]['duration'],
-                "Startpoint": {'lat': pathfinding_loc[0][1], 'lon': pathfinding_loc[0][0]},
-                "Endpoint": {'lat': pathfinding_loc[1][1], 'lon': pathfinding_loc[1][0]},
-                "Steps": stepslist
-                }
+            stepslist = []
+            for i in range(len(jsonobj["routes"][0]["legs"][0]["steps"])):
+                stepslist.append(
+                    {
+                        "index": str(i) + " to " + str(i + 1),
+                        "distance": jsonobj["routes"][0]["legs"][0]["steps"][i][
+                            "distance"
+                        ],
+                        "duration": jsonobj["routes"][0]["legs"][0]["steps"][i][
+                            "duration"
+                        ],
+                        "start_location": jsonobj["routes"][0]["legs"][0]["steps"][i][
+                            "start_location"
+                        ],
+                        "end_location": jsonobj["routes"][0]["legs"][0]["steps"][i][
+                            "end_location"
+                        ],
+                        "html_instructions": jsonobj["routes"][0]["legs"][0]["steps"][
+                            i
+                        ]["html_instructions"],
+                        "travel_mode": jsonobj["routes"][0]["legs"][0]["steps"][i][
+                            "travel_mode"
+                        ],
+                        "steps"
+                        if jsonobj["routes"][0]["legs"][0]["steps"][i]["travel_mode"]
+                        == "WALKING"
+                        else "transit_details": jsonobj["routes"][0]["legs"][0][
+                            "steps"
+                        ][i]["steps"]
+                        if jsonobj["routes"][0]["legs"][0]["steps"][i]["travel_mode"]
+                        == "WALKING"
+                        else jsonobj["routes"][0]["legs"][0]["steps"][i][
+                            "transit_details"
+                        ],
+                    }
+                )
+
+            path_parsed = {
+                "Total distance": jsonobj["routes"][0]["legs"][0]["distance"],
+                "Total duration": jsonobj["routes"][0]["legs"][0]["duration"],
+                "Startpoint": {
+                    "lat": pathfinding_loc[0][1],
+                    "lon": pathfinding_loc[0][0],
+                },
+                "Endpoint": {
+                    "lat": pathfinding_loc[1][1],
+                    "lon": pathfinding_loc[1][0],
+                },
+                "Steps": stepslist,
+            }
 
             pathfinding_result.append(path_parsed)
 

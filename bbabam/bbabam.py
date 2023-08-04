@@ -4,11 +4,12 @@ from bbabam.flow.tasks.names import DataNames
 from bbabam.flow.components.task_data_store import TaskDataStore
 
 import threading
+from functools import partial
 
 from colorama import Fore, Style
 
 
-def on_state_changed(state: MultiTaskState):
+def on_state_changed(state: MultiTaskState, verbose: bool = True):
     import os
 
     def print_default_state(state: DefaultTaskState, depth: int, last=False):
@@ -46,52 +47,59 @@ def on_state_changed(state: MultiTaskState):
     global lock
     lock.acquire()
 
-    # clear console
-    os.system("cls" if os.name == "nt" else "clear")
+    if verbose:
+        # clear console
+        os.system("cls" if os.name == "nt" else "clear")
 
-    print("\n\nOn_state_changed: ")
-    print_multi_state(state, 0)
+        print("\n\nOn_state_changed: ")
+        print_multi_state(state, 0)
 
     lock.release()
 
 
-def run_bbabam(user_input: str):
+def run_bbabam(user_input: str, verbose: bool = True, socket_module=None):
     global lock
     lock = threading.Lock()
 
+    _on_state_changed = partial(on_state_changed, verbose=verbose)
+
     data_store: TaskDataStore = bbabam_flow.start_flow(
-        user_input=user_input, on_state_changed=on_state_changed
+        user_input=user_input,
+        on_state_changed=_on_state_changed,
+        socket_module=socket_module,
     )
 
-    print(f"{Fore.BLUE}User Input{Fore.RESET}")
-    print(data_store.get_data(DataNames.USER_INPUT))
+    if verbose:
+        print(f"{Fore.BLUE}User Input{Fore.RESET}")
+        print(data_store.get_data(DataNames.USER_INPUT))
 
-    print(f"{Fore.BLUE}Search Keywords{Fore.RESET}")
-    print(data_store.get_data(DataNames.SEARCH_KEYWORDS))
+        print(f"{Fore.BLUE}Search Keywords{Fore.RESET}")
+        print(data_store.get_data(DataNames.SEARCH_KEYWORDS))
 
-    print(f"{Fore.BLUE}Restrictions{Fore.RESET}")
-    print(data_store.get_data(DataNames.RESTRICTIONS))
+        print(f"{Fore.BLUE}Restrictions{Fore.RESET}")
+        print(data_store.get_data(DataNames.RESTRICTIONS))
 
-    print(f"{Fore.BLUE}Merged Data{Fore.RESET}")
-    print(data_store.get_data(DataNames.MERGED_DATA))
+        print(f"{Fore.BLUE}Merged Data{Fore.RESET}")
+        print(data_store.get_data(DataNames.MERGED_DATA))
 
-    print(f"{Fore.BLUE}Links{Fore.RESET}")
-    print(data_store.get_data(DataNames.LINKS))
+        print(f"{Fore.BLUE}Links{Fore.RESET}")
+        print(data_store.get_data(DataNames.LINKS))
 
-    print(f"{Fore.BLUE}Result{Fore.RESET}")
-    print(data_store.get_data(DataNames.RESULT))
+        print(f"{Fore.BLUE}Result{Fore.RESET}")
+        print(data_store.get_data(DataNames.RESULT))
 
-    print(f"{Fore.BLUE}Place Keywords{Fore.RESET}")
-    print(data_store.get_data(DataNames.PLACE_KEYWORDS))
+        print(f"{Fore.BLUE}Place Keywords{Fore.RESET}")
+        print(data_store.get_data(DataNames.PLACE_KEYWORDS))
 
-    print(f"{Fore.BLUE}Path Keywords{Fore.RESET}")
-    print(data_store.get_data(DataNames.PATH_KEYWORDS))
+        print(f"{Fore.BLUE}Path Keywords{Fore.RESET}")
+        print(data_store.get_data(DataNames.PATH_KEYWORDS))
 
-    print(f"{Fore.BLUE}Place Crawled Data{Fore.RESET}")
-    print(data_store.get_data(DataNames.PLACE_DATA))
+        print(f"{Fore.BLUE}Place Crawled Data{Fore.RESET}")
+        print(data_store.get_data(DataNames.PLACE_DATA))
 
-    print(f"{Fore.BLUE}Pathfinding Crawled Data{Fore.RESET}")
-    print(data_store.get_data(DataNames.PATHFINDING_DATA))
+        print(f"{Fore.BLUE}Pathfinding Crawled Data{Fore.RESET}")
+        print(data_store.get_data(DataNames.PATHFINDING_DATA))
 
-    print(f"{Fore.BLUE}Pathfinding Crawled Data{Fore.RESET}")
-    print(data_store.get_data(DataNames.ASSOCIATED_SEARCH))
+        print(f"{Fore.BLUE}Associated Search Keywords{Fore.RESET}")
+        print(data_store.get_data(DataNames.ASSOCIATED_SEARCH))
+

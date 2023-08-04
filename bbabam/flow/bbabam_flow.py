@@ -1,4 +1,6 @@
 from typing import Callable, Union
+from functools import partial
+import ast
 
 from bbabam.flow.tasks.names import DataNames
 from bbabam.flow.components.task_data_store import TaskDataStore
@@ -11,7 +13,7 @@ from bbabam.flow.tasks.crawler import Crawler
 from bbabam.flow.tasks.restriction_generator import RestrictionGenerator
 from bbabam.flow.tasks.place_keywords_generator import PlaceInfoNeedsGenerator
 from bbabam.flow.tasks.path_keywords_generator import PathInfoNeedsGenerator
-from bbabam.flow.tasks.chunk_divisor import ChunkDivisor 
+from bbabam.flow.tasks.chunk_divisor import ChunkDivisor
 from bbabam.flow.tasks.relevance_estimator import RelevanceEstimator
 from bbabam.flow.tasks.merger import Merger
 from bbabam.flow.tasks.result_generator import ResultGenerator
@@ -19,6 +21,7 @@ from bbabam.flow.tasks.database import DatabaseManager
 from bbabam.flow.tasks.place_crawler import PlaceCrawler
 from bbabam.flow.tasks.place_crawler import PathCrawler
 from bbabam.flow.tasks.associated_search import AssociatedSearchGenerator
+from bbabam.flow.tasks.socket_emit import ScoketEmit
 
 class FlowConfigurations:
     keyword_num = 3
@@ -32,6 +35,7 @@ def start_flow(
     user_input: str,
     on_state_changed: Callable[[MultiTaskState], None],
     configurations: Union[FlowConfigurations, None] = None,
+    socket_module=None,
 ) -> TaskDataStore:
     # Construct Flow
     data_store = TaskDataStore()
@@ -50,9 +54,20 @@ def start_flow(
                         "meterial preparation",
                         [
                             SearchKeywordGenerator(
-                                keyword_num=configurations.keyword_num
+                                keyword_num=configurations.keyword_num,
                             ),
-                            Crawler(crawling_text_num=configurations.crawling_text_num),
+                            ScoketEmit(
+                                socket_module=socket_module,
+                                payloads={"search_keywords": DataNames.SEARCH_KEYWORDS},
+                                emit_event="start_crawling",
+                            ),
+                            Crawler(
+                                crawling_text_num=configurations.crawling_text_num,
+                            ),
+                            ScoketEmit(
+                                socket_module=socket_module,
+                                emit_event="finish_crawling",
+                            ),
                             DatabaseManager(),
                         ],
                     ),
@@ -75,31 +90,57 @@ def start_flow(
                             ),
                         ],
                     ),
-                ],  
-                ),
+                ],
+            ),
             SequentialRunner(
                 "generation",
                 [
                     ResultGenerator(),
-                    ParallelRunner("Place Data Generation", [
-                        SequentialRunner(
-                            "POI Data Crawl", [
-                                PlaceInfoNeedsGenerator(),
-                                PlaceCrawler(),
-                                ]
-                        ),
-                        SequentialRunner(
-                            "Path Data Crawl", [
-                                PathInfoNeedsGenerator(),
-                                PathCrawler(),
-                            ]
-                        ),
-                        SequentialRunner(
-                            "Associated Search Gen", [
-                                AssociatedSearchGenerator(),
-                            ]
-                        )
-                    ])
+                    ScoketEmit(
+                        socket_module=socket_module,
+                        payloads={"urls": DataNames.LINKS, "result": DataNames.RESULT},
+                        emit_event="finish_generation",
+                    ),
+                    ParallelRunner(
+                        "Place Data Generation",
+                        [
+                            SequentialRunner(
+                                "POI Data Crawl",
+                                [
+                                    PlaceInfoNeedsGenerator(),
+                                    PlaceCrawler(),
+                                    ScoketEmit(
+                                        socket_module=socket_module,
+                                        payloads={
+                                            "place_keywords": DataNames.PLACE_KEYWORDS,
+                                            "place_crawled_data": DataNames.PLACE_DATA,
+                                        },
+                                        emit_event="poi_generation",
+                                    ),
+                                ],
+                            ),
+                            SequentialRunner(
+                                "Path Data Crawl",
+                                [
+                                    PathInfoNeedsGenerator(),
+                                    PathCrawler(),
+                                    ScoketEmit(
+                                        socket_module=socket_module,
+                                        payloads={
+                                            "path_keywords": DataNames.PATH_KEYWORDS,
+                                            "path_crawled_data": DataNames.PATHFINDING_DATA,
+                                        },
+                                        emit_event="path_generation",
+                                    ),
+                                ],
+                            ),
+                            SequentialRunner(
+                                "Associated Search Gen", [
+                                    AssociatedSearchGenerator(),
+                                ],
+                            ),
+                        ],
+                    ),
                 ],
             ),
         ],

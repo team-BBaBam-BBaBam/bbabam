@@ -2,7 +2,6 @@ from bbabam.flow.components.task import SingleTask, TaskStateType
 from bbabam.flow.tasks.names import TaskNames, DataNames
 
 from bbabam.modules.crawling_module.crawling import SocialCrawl
-from bbabam.database import save_multiple_data
 
 
 class Crawler(SingleTask):

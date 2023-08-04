@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Socket.IO Client</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+        integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+        crossorigin="anonymous"></script>
+
+    <!-- Import Google Icon Font -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Import materialize.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Socket.IO Client</h1>
+        <div class="input-field">
+            <input id="input_text" type="text" class="validate">
+            <label for="input_text">Input</label>
+        </div>
+        <button id="start_button" class="btn waves-effect waves-light" onclick="javascript:Start()">Start!
+            <i class="material-icons right">send</i>
+        </button>
+        <div id="message"></div>
+    </div>
+    <script>
+        // 서버와의 소켓 연결을 설정합니다.
+        const socket = io('http://localhost:8080/search');
+        const startButton = document.getElementById("start_button");
+        let startTime;  // 추가: 시작 시간을 저장하기 위한 변수
+
+        function Start() {
+            const inp = document.getElementById("input_text")
+            if ("key" in localStorage) {
+                socket.emit("start", { "search_text": inp.value, "key": localStorage.getItem("key") })
+                startButton.disabled = true; // 버튼을 비활성화
+                startTime = Date.now(); // 시작 시간을 저장
+            }
+        }
+
+        function appendMessage(title, data) {
+            const messageElement = document.getElementById("message")
+            const newTitleElement = document.createElement("h5")
+            const newMessageElement = document.createElement("p")
+            newTitleElement.textContent = title
+            newMessageElement.textContent = JSON.stringify(data, null, 2)  // 들여쓰기 추가
+            messageElement.appendChild(newTitleElement)
+            messageElement.appendChild(newMessageElement)
+        }
+
+        socket.on('receive_id', (data) => { localStorage.setItem("key", data) });
+        socket.on('start_crawling', (data) => { appendMessage('Start Crawling', data) });
+        socket.on('finish_crawling', (data) => { appendMessage('Finish Crawling', data) });
+        socket.on('finish_generation', (data) => {
+            const endTime = Date.now(); // 종료 시간을 저장
+            const duration = (endTime - startTime) / 1000; // 초 단위로 경과 시간을 계산
+            appendMessage('Finish Generation', data);
+            appendMessage('Elapsed Time', `${duration} seconds`); // 경과 시간을 출력
+            startButton.disabled = false; // 모든 작업이 끝나면 버튼을 다시 활성화
+        });
+        socket.on('poi_generation', (data) => { appendMessage('POI Generation', data) });
+        socket.on('path_generation', (data) => { appendMessage('Path Generation', data) });
+        socket.on('error', (data) => { appendMessage('error', data) });
+    </script>
+    <!-- Import jQuery and then materialize.js -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+
+</html>

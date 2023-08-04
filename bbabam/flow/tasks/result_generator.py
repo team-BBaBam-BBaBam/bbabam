@@ -15,7 +15,6 @@ class ResultGenerator(SingleTask):
         user_input = self.data_store.get_data(DataNames.USER_INPUT)
         restrictions = self.data_store.get_data(DataNames.RESTRICTIONS)
         information = self.data_store.get_data(DataNames.MERGED_DATA)
-
         respond, respond_with_message, info = self.result_generator.forward(
             user_input, restrictions, information
         )

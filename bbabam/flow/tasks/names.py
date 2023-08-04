@@ -1,11 +1,11 @@
 class TaskNames:
-    SEARCH_KEYWORD_GENERATOR = 'search_keyword_generator'
-    RESTRICTION_GENERATOR = 'restriction_generator'
-    CRAWLER = 'crawler'
-    CHUNK_DIVISOR = 'chunk_divisor'
-    RELEVANCE_ESTIMATOR = 'relevance_estimator'
-    RELEVANCE_ESTIMATOR_SUBTASK = 'relevance_estimator_subtask'
-    MERGER = 'merger'
+    SEARCH_KEYWORD_GENERATOR = "search_keyword_generator"
+    RESTRICTION_GENERATOR = "restriction_generator"
+    CRAWLER = "crawler"
+    CHUNK_DIVISOR = "chunk_divisor"
+    RELEVANCE_ESTIMATOR = "relevance_estimator"
+    RELEVANCE_ESTIMATOR_SUBTASK = "relevance_estimator_subtask"
+    MERGER = "merger"
     INSERT_TO_DATABASE = "insert_to_database"
     RESULT_GENERATOR = 'result_generator'
     PLACE_KEYWORD_EXTRACTOR = 'place_keyword_generator'
