@@ -39,7 +39,7 @@ def socket_start(data):
     user_input = data["search_text"]
     print(user_input)
     room_id = request.sid
-    join_room(room_id)
+    # join_room(room_id)
     print(room_id)
     emit("start_crawling", "Hi!!", room = room_id, namespace="/search")
     emit("start_crawling", "Hi2!!", namespace="/search")
