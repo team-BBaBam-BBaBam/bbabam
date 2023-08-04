@@ -20,8 +20,8 @@ from bbabam.flow.tasks.result_generator import ResultGenerator
 from bbabam.flow.tasks.database import DatabaseManager
 from bbabam.flow.tasks.place_crawler import PlaceCrawler
 from bbabam.flow.tasks.place_crawler import PathCrawler
+from bbabam.flow.tasks.associated_search import AssociatedSearchGenerator
 from bbabam.flow.tasks.socket_emit import ScoketEmit
-
 
 class FlowConfigurations:
     keyword_num = 3
@@ -132,6 +132,11 @@ def start_flow(
                                         },
                                         emit_event="path_generation",
                                     ),
+                                ],
+                            ),
+                            SequentialRunner(
+                                "Associated Search Gen", [
+                                    AssociatedSearchGenerator(),
                                 ],
                             ),
                         ],
