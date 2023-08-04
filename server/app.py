@@ -40,15 +40,12 @@ def socket_start(data):
     user_input = data["search_text"]
     print(user_input)
     room_id = request.sid
-    # join_room(room_id)
+    join_room(room_id)
     print(room_id)
-    emit("start_crawling", "Hi!!", room = room_id, namespace="/search")
-    emit("start_crawling", "Hi2!!", namespace="/search")
-    emit("start_crawling", "Hi3!!")
     if not room_id or room_id == "":
         return emit("error", "Cloud not find SessionId")
     try:
-        run_bbabam(
+        return run_bbabam(
             user_input,
             verbose=False,
             socket_module={
@@ -59,7 +56,7 @@ def socket_start(data):
             },
         )
     except Exception as error:
-        return emit("error", str(error))
+        return emit("error", str(error), room=room_id, namespace="/search")
 
 
 if __name__ == "__main__":
