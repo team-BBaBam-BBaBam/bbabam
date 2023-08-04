@@ -70,17 +70,6 @@ def start_flow(
                                 emit_event="finish_crawling",
                             ),
                             DatabaseManager(),
-                        ],
-                    ),
-                    RestrictionGenerator(),
-                ],
-            ),
-            ParallelRunner(
-                "analysis",
-                [
-                    SequentialRunner(
-                        "meterial processing",
-                        [
                             ChunkDivisor(
                                 chunk_size=configurations.chunk_size,
                                 chunk_overlap=configurations.chunk_overlap,
@@ -91,6 +80,7 @@ def start_flow(
                             ),
                         ],
                     ),
+                    RestrictionGenerator(),
                 ],
             ),
             SequentialRunner(
@@ -142,7 +132,7 @@ def start_flow(
                                     ScoketEmit(
                                         socket_module=socket_module,
                                         payloads={
-                                            "associated_keywords": DataNames.PATH_KEYWORDS,
+                                            "associated_keywords": DataNames.ASSOCIATED_SEARCH,
                                         },
                                         emit_event="associated_ketwords",
                                     ),

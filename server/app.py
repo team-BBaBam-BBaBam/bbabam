@@ -1,5 +1,5 @@
 from flask import Flask, session, render_template
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, emit, join_room, disconnect
 from flask_session import Session
 from bbabam.bbabam import run_bbabam
 from flask_cors import CORS
@@ -31,6 +31,11 @@ def main():
     return render_template("index.html")
 
 
+@app.route("/status")
+def status():
+    return "Good!"
+
+
 @socketio.on("connect", namespace="/search")
 def socket_connect():
     sid = generate_random_string(64)
@@ -43,20 +48,23 @@ def socket_connect():
 def socket_start(data):
     user_input = data["search_text"]
     room_id = data["key"]
-    print(user_input)
-    if not room_id:
+    if not room_id or room_id == "":
         return emit("error", "Cloud not find SessionId")
-
-    run_bbabam(
-        user_input,
-        verbose=False,
-        socket_module={
-            "emit": socketio,
-            "app": app,
-            "namespace": "/search",
-            "room": room_id,
-        },
-    )
+    try:
+        run_bbabam(
+            user_input,
+            verbose=False,
+            socket_module={
+                "emit": socketio,
+                "app": app,
+                "namespace": "/search",
+                "room": room_id,
+            },
+        )
+    except Exception as error:
+        return emit("error", str(error))
+    finally:
+        return disconnect()
 
 
 if __name__ == "__main__":

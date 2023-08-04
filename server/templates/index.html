@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Socket.IO Client</title>
+    <title>BBA-BAM!</title>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
         integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
         crossorigin="anonymous"></script>
@@ -15,7 +15,7 @@
 
 <body>
     <div class="container">
-        <h1>Socket.IO Client</h1>
+        <h1>BBA-BAM!</h1>
         <div class="input-field">
             <input id="input_text" type="text" class="validate">
             <label for="input_text">Input</label>
@@ -62,6 +62,7 @@
         });
         socket.on('poi_generation', (data) => { appendMessage('POI Generation', data) });
         socket.on('path_generation', (data) => { appendMessage('Path Generation', data) });
+        socket.on('associated_ketwords', (data) => { appendMessage('Associated Keywords', data) });
         socket.on('error', (data) => { appendMessage('error', data) });
     </script>
     <!-- Import jQuery and then materialize.js -->
