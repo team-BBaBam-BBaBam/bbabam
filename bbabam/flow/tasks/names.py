@@ -12,6 +12,7 @@ class TaskNames:
     PATH_KEYWORD_EXTRACTOR = 'path_keyword_generator'
     PLACE_CRAWLER = 'place_crawler'
     PATH_CRAWLER = 'path_crawler'
+    ASSO_SEARCH_GENERATOR = 'asso_search_generator'
     
 
 class DataNames:
@@ -28,3 +29,4 @@ class DataNames:
     PLACE_DATA = 'place_data'
     PATHFINDING_DATA = 'pathfinding_data'
     RESULT = 'result'
+    ASSOCIATED_SEARCH = 'associated_search'
