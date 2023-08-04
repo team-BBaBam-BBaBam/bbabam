@@ -1,4 +1,4 @@
-from flask import Flask, session, render_template
+from flask import Flask, session, render_template, request
 from flask_socketio import SocketIO, emit, join_room, disconnect
 from bbabam.bbabam import run_bbabam
 from flask_cors import CORS
@@ -38,7 +38,7 @@ def status():
 def socket_start(data):
     user_input = data["search_text"]
     print(user_input)
-    room_id = generate_random_string(64)
+    room_id = request.sid
     join_room(room_id)
     print(room_id)
     socketio.emit("start_crawling", "Hi!!", room = room_id, namespace="/search")
