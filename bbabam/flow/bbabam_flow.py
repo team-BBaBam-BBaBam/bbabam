@@ -23,6 +23,7 @@ from bbabam.flow.tasks.place_crawler import PathCrawler
 from bbabam.flow.tasks.associated_search import AssociatedSearchGenerator
 from bbabam.flow.tasks.socket_emit import ScoketEmit
 
+
 class FlowConfigurations:
     keyword_num = 3
     crawling_text_num = 10
@@ -135,8 +136,16 @@ def start_flow(
                                 ],
                             ),
                             SequentialRunner(
-                                "Associated Search Gen", [
+                                "Associated Search Gen",
+                                [
                                     AssociatedSearchGenerator(),
+                                    ScoketEmit(
+                                        socket_module=socket_module,
+                                        payloads={
+                                            "associated_keywords": DataNames.PATH_KEYWORDS,
+                                        },
+                                        emit_event="associated_ketwords",
+                                    ),
                                 ],
                             ),
                         ],
