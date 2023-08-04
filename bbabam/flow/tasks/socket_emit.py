@@ -19,6 +19,7 @@ class ScoketEmit(SingleTask):
         self.room = socket_module["room"]
         self.emit_event = emit_event
         self.payloads = payloads if isinstance(payloads, dict) else payloads()
+        print(self.app, self.socket_module, self.room, self.namespace)
 
     def emit(self, data: Dict):
         with self.app.app_context():

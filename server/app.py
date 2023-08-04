@@ -59,7 +59,6 @@ def socket_start(data):
                 "room": room_id
             },
         )
-        socket.emit("error", "end_error!", room = room_id, namespace="/search")
     except Exception as error:
         return emit("error", str(error))
 
