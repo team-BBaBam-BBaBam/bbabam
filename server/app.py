@@ -2,6 +2,7 @@ from flask import Flask, session, render_template
 from flask_socketio import SocketIO, emit, join_room
 from flask_session import Session
 from bbabam.bbabam import run_bbabam
+from flask_cors import CORS
 
 import random
 import string
@@ -11,6 +12,9 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config["CORS_HEADERS"] = "Content-Type"
+
+cors = CORS(app)
 Session(app)
 socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
 
