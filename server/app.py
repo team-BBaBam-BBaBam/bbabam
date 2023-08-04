@@ -43,6 +43,7 @@ def socket_start(data):
     print(room_id)
     socketio.emit("start_crawling", "Hi!!", room = room_id, namespace="/search")
     socketio.emit("start_crawling", "Hi2!!", namespace="/search")
+    socketio.emit("start_crawling", "Hi3!!")
     if not room_id or room_id == "":
         return emit("error", "Cloud not find SessionId")
     try:
