@@ -1,1 +1,1 @@
-gunicorn --bind 0.0.0.0:4827 -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker --workers 4 wsgi:app
+nohup gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:4827 --reload wsgi:app &

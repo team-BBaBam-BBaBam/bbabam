@@ -2,10 +2,8 @@ from flask import Flask, session, render_template, request
 from flask_socketio import SocketIO, emit, join_room, disconnect
 from bbabam.bbabam import run_bbabam
 from flask_cors import CORS
-
-import random
-import string
-
+import json
+from random import choices
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
@@ -13,14 +11,13 @@ app.config["SESSION_PERMANENT"] = False
 app.config["CORS_HEADERS"] = "Content-Type"
 
 cors = CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
+with open("server/picture.json", "r") as file:
+    picture_dataset = json.load(file)
 
-def generate_random_string(length):
-    possible_characters = string.ascii_letters + string.digits
-    random_string = "".join(random.choice(possible_characters) for _ in range(length))
-
-    return random_string
+with open("server/korean_to_english_dict.json", "r") as file:
+    korean_to_english = json.load(file)
 
 
 @app.route("/")
@@ -33,6 +30,33 @@ def status():
     return "Good!"
 
 
+@app.route("/loadimage/<num>", methods=["GET"])
+def get_picture(num):
+    num = min(int(num), 20)
+    res = []
+    index = 0
+    while True:
+        if index == num:
+            break
+        pic_data = choices(picture_dataset["item"], k=1)
+        if pic_data[0]["galTitle"] in korean_to_english:
+            res += [
+                {
+                    "url": pic_data[0]["galWebImageUrl"],
+                    "korean_title": pic_data[0]["galTitle"],
+                    "english_title": korean_to_english[pic_data[0]["galTitle"]],
+                    "create_time": pic_data[0]["galCreatedtime"],
+                    "modified_time": pic_data[0]["galModifiedtime"],
+                    "month": pic_data[0]["galPhotographyMonth"],
+                    "location": pic_data[0]["galPhotographyLocation"],
+                    "keywords": pic_data[0]["galSearchKeyword"].split(", "),
+                }
+            ]
+            index += 1
+        else:
+            continue
+
+    return json.dumps(res)
 
 
 @socketio.on("start", namespace="/search")
@@ -52,11 +76,14 @@ def socket_start(data):
                 "emit": socketio,
                 "app": app,
                 "namespace": "/search",
-                "room": room_id
+                "room": room_id,
             },
         )
     except Exception as error:
-        return emit("error", str(error), room=room_id, namespace="/search")
+        print(error)
+        emit("error", str(error), room=room_id, namespace="/search")
+    finally:
+        disconnect()
 
 
 if __name__ == "__main__":

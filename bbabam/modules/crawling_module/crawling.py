@@ -2,8 +2,7 @@ import bbabam.modules.crawling_module.modules.tripbuilder_crawler as TB
 import warnings
 import time
 import requests
-from multiprocessing import Process, Manager
-import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
 
 warnings.filterwarnings(action="ignore")
 
@@ -14,7 +13,6 @@ class SocialCrawl:
         self.proxy_activate = proxy_activate
         self.crawler = TB.NaverCrawler(self.proxy_activate)
         self.keywords = []
-        self.contents = []
         self.output = []
 
     def __repr__(self) -> str:
@@ -31,12 +29,12 @@ class SocialCrawl:
             return None
         return content
 
-    def Multi_Crawler(self, query, txt_num, processor_num):
-        # pool = mp.Pool(processes=processor_num)
+    def Multi_Crawler(self, query, txt_num, thread_num):
+        pool = ThreadPool(thread_num)
         urls, tot_num = self.get_links(query, txt_num)
-        lst = list(map(self.get_content, urls))
-        # pool.close()
-        # pool.join()
+        lst = pool.map(self.get_content, urls)
+        pool.close()
+        pool.join()
         return lst, tot_num, urls
 
     def getTime(self, sec):
@@ -46,56 +44,25 @@ class SocialCrawl:
         s = (sec - h * 3600) % 60
         return f"{h}h {m}m {s}s"
 
-    def single_keyword_search(self, keyword, txt_num, output_list):
-        conts = []
-        cont_lst = []
-        conts, tot_num, urls = self.Multi_Crawler(keyword, txt_num, int(txt_num / 2))
-        for j in range(len(conts)):
-            try:
-                text = conts[j].replace("\u200b", "")
-            except:
-                text = ""
-            cont_lst.append({"text": text, "link": urls[j]})
-
-        output_list.append({"keywords": keyword, "contents": cont_lst})
-
     def forward(self, keywords, txt_num=20, on_print_message=None):
         self.keywords = keywords
-        s = time.time()
-        self.searched_context = []
 
-        for i in range(len(self.keywords)):
-            conts = []
-            cont_lst = []
-            conts, tot_num, urls = self.Multi_Crawler(
-                self.keywords[i], txt_num, int(txt_num / 2)
-            )
+        conts = []
+        cont_list = []
+        output_list = []
+
+        for keyword in keywords:
+            conts, tot_num, urls = self.Multi_Crawler(keyword, txt_num, 10)
             for j in range(len(conts)):
                 try:
                     text = conts[j].replace("\u200b", "")
                 except:
                     text = ""
-                cont_lst.append({"text": text, "link": urls[j]})
-            t = time.time()
-            times = (t - s) * (len(self.keywords) - i - 1) / (i + 1)
-            if on_print_message is not None:
-                on_print_message(
-                    f"{self.keywords[i]} Completed... ({i+1}/{len(self.keywords)}) | [Remaining time:{self.getTime(times)}]"
-                )
-            else:
-                print(
-                    f"\r[{i+1}/{len(self.keywords)}]|"
-                    + self.keywords[i]
-                    + f"[{tot_num}] Completed...|[Remaining time:{self.getTime(times)}]",
-                    end="",
-                )
-            self.searched_context = {"keywords": self.keywords[i], "contents": cont_lst}
-            self.output.append(self.searched_context)
-            if self.proxy_activate:
-                time.sleep(1)
-            else:
-                time.sleep(5)
-        return self.output
+                cont_list.append({"text": text, "link": urls[j]})
+
+            output_list.append({"keywords": keyword, "contents": cont_list})
+
+        return output_list
 
 
 class POICrawl:
@@ -130,8 +97,8 @@ class POICrawl:
                     {
                         "name": place_name,
                         "address": address_name,
-                        "loc_X": float(position_XY[0]),
-                        "loc_Y": float(position_XY[1]),
+                        "loc_X": position_XY[0],
+                        "loc_Y": position_XY[1],
                         "url": place_url,
                         "cate1": cate_1,
                         "cate2": cate_2,
