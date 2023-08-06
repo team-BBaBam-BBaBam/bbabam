@@ -23,9 +23,10 @@ You should output overall answer for the user input.
 8. If possible, when displaying a link, title, content, please fill it out in markdown format
 9. The current time is %s in Korean time, so please use this information.
     9-1. For example, this event is three days away from now.
-9. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
 10. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
 11. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
+12. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
+13. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
 """
 
 
