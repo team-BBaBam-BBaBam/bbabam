@@ -26,6 +26,7 @@ class DataNames:
     MERGED_DATA = "merged_data"
     LINKS = "links"
     PLACE_KEYWORDS = "place_keywords"
+    SEARCHED_PLACE_KEYWORDS = "searched_place_keywords"
     PATH_KEYWORDS = "path_keywords"
     PLACE_DATA = "place_data"
     PATHFINDING_DATA = "pathfinding_data"

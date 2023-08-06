@@ -17,8 +17,11 @@ class PlaceCrawler(SingleTask):
         def on_progress(message):
             self.update_state(TaskStateType.RUNNING, message)
 
-        place_data = self.crawler.forward(place_keywords, on_print_message=on_progress)
+        searched_keywords, place_data = self.crawler.forward(
+            place_keywords, on_print_message=on_progress
+        )
         self.data_store.set_data(DataNames.PLACE_DATA, place_data)
+        self.data_store.set_data(DataNames.SEARCHED_PLACE_KEYWORDS, searched_keywords)
 
         self.update_state(TaskStateType.FINISHED, "Place Crawling Finished")
 
@@ -37,6 +40,7 @@ class PathCrawler(SingleTask):
             self.update_state(TaskStateType.RUNNING, message)
 
         pathfinding_data = self.crawler.forward(path_keywords)
+
         self.data_store.set_data(DataNames.PATHFINDING_DATA, pathfinding_data)
 
         self.update_state(TaskStateType.FINISHED, "Path Crawling Finished")

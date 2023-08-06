@@ -103,7 +103,7 @@ def start_flow(
                                     ScoketEmit(
                                         socket_module=socket_module,
                                         payloads={
-                                            "place_keywords": DataNames.PLACE_KEYWORDS,
+                                            "place_keywords": DataNames.SEARCHED_PLACE_KEYWORDS,
                                             "place_crawled_data": DataNames.PLACE_DATA,
                                         },
                                         emit_event="poi_generation",

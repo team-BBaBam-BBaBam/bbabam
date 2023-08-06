@@ -89,6 +89,7 @@ class POICrawl:
         self.place_name_list = place
 
         poi_result = []
+        searched_keywords = []
 
         try:
             for i in range(len(self.place_name_list)):
@@ -101,6 +102,13 @@ class POICrawl:
                     cate_2,
                     phone_num,
                 ) = self.crawler.get_Detail(self.place_name_list[i], version=1)
+                if (
+                    check_isnan(place_name) == None
+                    or check_isnan(float(position_XY[0])) == None
+                    or check_isnan(float(position_XY[1])) == None
+                ):
+                    continue
+                searched_keywords.append(self.place_name_list[i])
                 poi_result.append(
                     {
                         "name": check_isnan(place_name),
@@ -129,7 +137,7 @@ class POICrawl:
         except:
             pass
 
-        return poi_result
+        return searched_keywords, poi_result
 
 
 class PathCrawl:
