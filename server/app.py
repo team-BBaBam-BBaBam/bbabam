@@ -4,6 +4,10 @@ from bbabam.bbabam import run_bbabam
 from flask_cors import CORS
 import json
 from random import choices
+from bbabam.settings.errors import (
+    ChatExceptionError,
+    WrongAccessError,
+)
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
@@ -79,9 +83,22 @@ def socket_start(data):
                 "room": room_id,
             },
         )
+    except ChatExceptionError as error:
+        print("error code 1", error)
+        emit(
+            "error",
+            {"err_code": 1, "err_msg": str(error)},
+            room=room_id,
+            namespace="/search",
+        )
     except Exception as error:
         print(error)
-        emit("error", str(error), room=room_id, namespace="/search")
+        emit(
+            "error",
+            {"err_code": 0, "err_msg": str(error)},
+            room=room_id,
+            namespace="/search",
+        )
     finally:
         disconnect()
 

@@ -1,7 +1,7 @@
 import re
 from bbabam.settings.errors import ChatExceptionError, WrongAccessError
 from .base_model import ChatModel
-
+import ast
 
 KEYWORD_GENERATOR_PROMPT = """You will be given 'request in natural language' which including information about user wants to know. You should generate suitable appropriate keyword that could search well. The keyword should be in Korean words and it can include proper nouns. User is foreigner who is planning to go on a trip in South Korea.
 
@@ -32,7 +32,7 @@ class KeywordGenerator(ChatModel):
 
     def __repr__(self) -> str:
         return "Web-Search Keyword Generation Module"
-    
+
     def forward(self, user_input: str, keyword_num: int = 5):
         reply = super().forward(
             f"Request in natural language: {user_input}",
@@ -41,7 +41,7 @@ class KeywordGenerator(ChatModel):
             ),
         )
 
-        wlist = reply.respond[2:-2].split('", "')
+        wlist = ast.literal_eval(reply.respond)
 
         find_korean = re.findall("[ㄱ-힣]+", reply.respond)
 

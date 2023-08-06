@@ -39,7 +39,12 @@ class ResultGenerator(ChatModel):
     ):
         super().__init__(
             model_type,
-            RESULT_GENERATOR_PROMPT % str(datetime.now().strftime("%Y/%m/%d/, %H:%M")),
+            RESULT_GENERATOR_PROMPT
+            % str(
+                datetime.now().strftime(
+                    "year : %Y month : %m day : %d hour : %H minute : %M"
+                )
+            ),
             temperature,
             stable,
             more_tokens,
