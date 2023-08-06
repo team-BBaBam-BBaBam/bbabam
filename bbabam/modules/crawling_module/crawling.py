@@ -4,6 +4,7 @@ import time
 import requests
 from multiprocessing import Process, Manager
 import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
 
 warnings.filterwarnings(action="ignore")
 
@@ -14,7 +15,6 @@ class SocialCrawl:
         self.proxy_activate = proxy_activate
         self.crawler = TB.NaverCrawler(self.proxy_activate)
         self.keywords = []
-        self.contents = []
         self.output = []
 
     def __repr__(self) -> str:
@@ -31,8 +31,8 @@ class SocialCrawl:
             return None
         return content
 
-    def Multi_Crawler(self, query, txt_num, processor_num):
-        pool = mp.Pool(processes=processor_num)
+    def Multi_Crawler(self, query, txt_num, thread_num):
+        pool = ThreadPool(thread_num)
         urls, tot_num = self.get_links(query, txt_num)
         lst = pool.map(self.get_content, urls)
         pool.close()
@@ -46,42 +46,25 @@ class SocialCrawl:
         s = (sec - h * 3600) % 60
         return f"{h}h {m}m {s}s"
 
-    def single_keyword_search(self, keyword, txt_num, output_list):
-        conts = []
-        cont_lst = []
-        conts, tot_num, urls = self.Multi_Crawler(keyword, txt_num, int(txt_num / 2))
-        for j in range(len(conts)):
-            try:
-                text = conts[j].replace("\u200b", "")
-            except:
-                text = ""
-            cont_lst.append({"text": text, "link": urls[j]})
-
-        output_list.append({"keywords": keyword, "contents": cont_lst})
-
     def forward(self, keywords, txt_num=20, on_print_message=None):
         self.keywords = keywords
-        s = time.time()
-        self.searched_context = []
+        
+        conts = []
+        cont_list = []
+        output_list = []
 
-        with Manager() as manager:
-            output_list = manager.list()  # Shared list
-            processes = []
+        for keyword in keywords:
+            conts, tot_num, urls = self.Multi_Crawler(keyword, txt_num, 10)
+            for j in range(len(conts)):
+                try:
+                    text = conts[j].replace("\u200b", "")
+                except:
+                    text = ""
+                cont_list.append({"text": text, "link": urls[j]})
 
-            for keyword in self.keywords:
-                p = Process(
-                    target=self.single_keyword_search,
-                    args=(keyword, txt_num, output_list),
-                )
-                p.start()
-                processes.append(p)
-
-            for p in processes:
-                p.join()
-
-            self.output = list(output_list)  # Convert back to regular list
-
-            return self.output
+            output_list.append({"keywords": keyword, "contents": cont_list})
+        
+        return output_list
 
 
 class POICrawl:
