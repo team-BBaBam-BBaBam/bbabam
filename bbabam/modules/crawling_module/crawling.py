@@ -3,8 +3,16 @@ import warnings
 import time
 import requests
 from multiprocessing.pool import ThreadPool
+import math
 
 warnings.filterwarnings(action="ignore")
+
+
+def check_isnan(value):
+    if isinstance(value, float) and math.isnan(value):
+        return None
+    else:
+        return value
 
 
 class SocialCrawl:
@@ -95,14 +103,14 @@ class POICrawl:
                 ) = self.crawler.get_Detail(self.place_name_list[i], version=1)
                 poi_result.append(
                     {
-                        "name": place_name,
-                        "address": address_name,
-                        "loc_X": position_XY[0],
-                        "loc_Y": position_XY[1],
-                        "url": place_url,
-                        "cate1": cate_1,
-                        "cate2": cate_2,
-                        "callnum": phone_num,
+                        "name": check_isnan(place_name),
+                        "address": check_isnan(address_name),
+                        "loc_X": check_isnan(float(position_XY[0])),
+                        "loc_Y": check_isnan(float(position_XY[1])),
+                        "url": check_isnan(place_url),
+                        "cate1": check_isnan(cate_1),
+                        "cate2": check_isnan(cate_2),
+                        "callnum": check_isnan(phone_num),
                     }
                 )
                 t = time.time()

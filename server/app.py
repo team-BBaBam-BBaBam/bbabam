@@ -11,11 +11,16 @@ from bbabam.settings.errors import (
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
-app.config["SESSION_PERMANENT"] = False
 app.config["CORS_HEADERS"] = "Content-Type"
 
 cors = CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    async_mode="threading",
+    logger=True,
+    engineio_logger=True,
+)
 
 with open("server/picture.json", "r") as file:
     picture_dataset = json.load(file)
@@ -99,8 +104,6 @@ def socket_start(data):
             room=room_id,
             namespace="/search",
         )
-    finally:
-        disconnect()
 
 
 if __name__ == "__main__":
