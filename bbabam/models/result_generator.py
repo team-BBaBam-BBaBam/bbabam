@@ -1,5 +1,6 @@
 from .base_model import ChatModel
 from typing import Dict
+from datetime import datetime
 
 RESULT_GENERATOR_PROMPT = """
 You should output overall answer for the user input.
@@ -19,7 +20,11 @@ You should output overall answer for the user input.
 7-2. Your URL links output should be located at very end of the overall output and formed as following example:
     [Links]
     ['https://blog.naver.com/aaa/111', 'https://blog.naver.com/bbb/222', 'https://blog.naver.com/ccc/333'...]
-8. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
+8. If possible, when displaying a link, title, content, please fill it out in markdown format
+9. The current time is %s in Korean time, so please use this information
+9. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
+10. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
+11. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
 """
 
 
@@ -32,7 +37,11 @@ class ResultGenerator(ChatModel):
         more_tokens: bool = True,
     ):
         super().__init__(
-            model_type, RESULT_GENERATOR_PROMPT, temperature, stable, more_tokens
+            model_type,
+            RESULT_GENERATOR_PROMPT % str(datetime.now().strftime("%Y/%m/%d/, %H:%M")),
+            temperature,
+            stable,
+            more_tokens,
         )
 
     def __repr__(self) -> str:
@@ -41,15 +50,15 @@ class ResultGenerator(ChatModel):
     def forward(self, user_input: str, restriction: str, information: str):
         system_prompt = (
             self.system_prompt
-            + "\nUser Input: \n\"\"\"\n"
+            + '\nUser Input: \n"""\n'
             + user_input
-            + "\n\"\"\"\n"
-            + "Instruction:  \n\"\"\"\n"
+            + '\n"""\n'
+            + 'Instruction:  \n"""\n'
             + restriction
-            + "\n\"\"\"\n"
+            + '\n"""\n'
         )
 
-        user_input = "Result of Searched Data: \n\"\"\"\n" + information + "\n\"\"\"\n"
+        user_input = 'Result of Searched Data: \n"""\n' + information + '\n"""\n'
 
         reply = super().forward(
             user_input,
