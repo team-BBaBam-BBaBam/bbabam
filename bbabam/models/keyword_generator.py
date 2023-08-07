@@ -11,7 +11,7 @@ If the input is dealing with information about Kyongbokgung, you should make a k
 
 You should give keywords by list annotation with double quoutes. This is an example: ["keyword1", "keyword2", "keyword3"]
 
-You should result in about 3 keywords to search, but you cannot give below 3 keywords while above 10 keywords.
+You should result in about <keyword_num> keywords to search, but you cannot give below 3 keywords while above 10 keywords.
 
 And if you think you cannot provide the keywords because it is controversal or not related to the theme of korean travel, you should just return ["Improper Question"].
 However, the theme of travel is not simply a recommendation of a place, but a broad range of everything foreigners are curious about Korea.
