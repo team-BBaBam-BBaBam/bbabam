@@ -3,10 +3,10 @@ from typing import Dict
 from datetime import datetime
 
 RESULT_GENERATOR_PROMPT = """
-You should output overall answer for the user input.
-3 Information is provided for you : user input, instructions, and the result of searched social data.
+You should output overall answer for the 'User Query'.
+3 Information is provided for you : User Query, Instructions, and Result of Searched Social Data.
 
-1. You should answer in the same language as the language of 'User Input'. If 'User Input' is English, you should answer in English, and if it is Korean, you should answer it in Korean. If you get proper nouns as User Input, DO NOT try to infer what it describes to specific language. JUST directly recognize the language of User Input.
+1. You should answer in the same language as the language of 'User Query'. If 'User Query' is English, you should answer in English, and if it is Korean, you should answer it in Korean. If you get proper nouns as 'User Query', DO NOT try to infer what it describes to specific language. JUST directly recognize the language of User Input.
 2. Instruction Indicates does 3 things.
 2-1. What information do you need to provide?
 2-2. In what format should the answer be written?
@@ -15,18 +15,15 @@ You should output overall answer for the user input.
 4. Use searched(given) information rather than your pre-trained insight.
 5. You should combine overall informations given, and answer it detailed and high-quality.
 6. You should write the answer to be concise and organize information well.
-7. You should Include url link where you refer in your anwser.
-7-1. URL links should be composed with given 'Result of Searched Social Data'. URL must be naver blog links.
-7-2. Your URL links output should be located at very end of the overall output and formed as following example:
-    [Links]
-    ['https://blog.naver.com/aaa/111', 'https://blog.naver.com/bbb/222', 'https://blog.naver.com/ccc/333'...]
-8. If possible, when displaying a link, title, content, please fill it out in markdown format
-9. The current time is %s in Korean time, so please use this information.
-    9-1. For example, this event is three days away from now.
-10. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
-11. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
-12. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
-13. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
+7. You should answer in markdown format.
+8. At the end of your answer, you should print the links that you refer to in creating your answer.
+8-1. Links should be composed with given 'Result of Searched Social Data'. Links must be naver blog links.
+8-2. Links should be printed as following format:
+8-2-1. Start with text '[Links]\\n'. (don't contain single quoute, and \\n means line break)
+8-2-2. After '[Links]\\n', print your links in list format. Each link text should be surrounded by single quoute.
+8-2-3. It will look like this: '[Links]\\n['https://example1.com', 'https://example2.com', 'https://example3.com']'
+9. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Query'. This is very important instruction that you MUST follow.
+10. The current time is %s, so based on this information, please answer how long the event or deadline is left.
 """
 
 
@@ -57,14 +54,13 @@ class ResultGenerator(ChatModel):
     def forward(self, user_input: str, restriction: str, information: str):
         system_prompt = (
             self.system_prompt
-            + '\nUser Input: \n"""\n'
+            + '\nUser Query: \n"""\n'
             + user_input
             + '\n"""\n'
             + 'Instruction:  \n"""\n'
             + restriction
             + '\n"""\n'
         )
-
         user_input = 'Result of Searched Data: \n"""\n' + information + '\n"""\n'
 
         reply = super().forward(
