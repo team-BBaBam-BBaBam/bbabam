@@ -1,12 +1,12 @@
 from typing import Tuple, List, Dict, Union
 from .base_model import ChatModel
 
-RESTRICTION_INFORMATION_GENERATOR_PROMPT = '''You will be given 'search keyword' to get information.  Customers want answers to their search keywords.  The attendant will be responsible for providing answers to the customer.  You must write down the Instructions to be delivered to the attendant.
+RESTRICTION_INFORMATION_GENERATOR_PROMPT = """You will be given 'search keyword' to get information.  Customers want answers to their search keywords.  The attendant will be responsible for providing answers to the customer.  You must write down the Instructions to be delivered to the attendant.
  
 
-Condition:
+Conditions:
 1. The attendant will not know about the 'search keyword', and will write an answer only by looking at your Instruction.
-2. The attendant will write the answer in text.
+2. The attendant will write the answer in markdown format text.
 3. Attendants should write as detailed and high-quality answers as possible.
 4. The Instruction you write should contain the following information.
 4-1.  What information do you need to provide?
@@ -17,16 +17,15 @@ Condition:
 7. Do not use the words 'attendant' or 'customer' in the Instructions.
 8. If necessary, it is okay to provide the example text format(answer template) of the answer in the Instruction. You SHOULD NOT include actual contents in example text format.
 9. Instructions must be written in English.
-10. Attendants will write answers in the same language as the 'search keyword'.
-
-
-Your output MUST follow this format:
-'{instruction}' MUST be replaced with your written instruction. Your written instruction MUST be surrounded by """.  You should respond once and it will look like:
-Instruction:
+10. Attendants will write answers in the same language as the 'search keyword'. Keep this in mind when writing your answer template.
+11. When you use numbering in your instruction, start number from 1.
+12. Your output must follow this format:
+12-1. Start with text 'Instruction:\n'. (don't contain single quoute, and \\n means line break)
+12-2. After 'Instruction:\\n', print your Instruction and it should be surrounded by triple double quotes('\"\"\"\\n...\\n\"\"\"')
+12-3. It will look like this: 'Instruction:\\n\"\"\"\\n...\\n\"\"\"'
+12-4. Do not print other descriptions that violate the above format.
+12-5. You have to answer only once.
 """
-{instruction}
-"""
-'''
 
 
 class RestrictionInformationGenerator(ChatModel):
@@ -80,6 +79,8 @@ class RestrictionInformationGenerator(ChatModel):
         response = reply.respond
         is_success, processed_response = self.__process_raw_response(response)
         if not is_success:
-            return "", reply.info
+            print("Failed to process response")
+            print("Response: ", response)
+            return "", reply.respond_with_message, reply.info
 
         return processed_response, reply.respond_with_message, reply.info
