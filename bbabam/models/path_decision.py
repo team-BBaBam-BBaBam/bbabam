@@ -27,17 +27,13 @@ class PathDataExtractor(ChatModel):
 
     def forward(self, user_input: str, result: str):
         system_prompt = (
-            self.system_prompt
-            + '\nTraveler Questions: \n"""\n'
-            + user_input
-            + '\n"""\n',
+            self.system_prompt + "\nTraveler Questions: \n\n" + user_input + "\n\n",
         )
 
-        user_input = 'Result of Searched Data: \n"""\n' + result + '\n"""\n'
+        user_input = "Result of Searched Data: \n\n" + result + "\n\n"
 
         reply = super().forward(
             user_input,
-            get_system_prompt=lambda: system_prompt,
         )
 
         return reply.respond, reply.respond_with_message, reply.info
