@@ -2,10 +2,10 @@ from .base_model import ChatModel
 from typing import Dict
 
 RESULT_GENERATOR_PROMPT = """
-You should output overall answer for the user input.
-3 Information is provided for you : user input, instructions, and the result of searched social data.
+You should output overall answer for the "Traveler Questions".
+3 Information is provided for you : "Traveler Questions", instructions, and the result of searched social data.
 
-1. You should answer in the same language as the language of 'User Input'. If 'User Input' is English, you should answer in English, and if it is Korean, you should answer it in Korean. If you get proper nouns as User Input, DO NOT try to infer what it describes to specific language. JUST directly recognize the language of User Input.
+1. You should answer in the same language as the language of "Traveler Questions". If "Traveler Questions" is English, you should answer in English, and if it is Korean, you should answer it in Korean. If you get proper nouns as User Input, DO NOT try to infer what it describes to specific language. JUST directly recognize the language of User Input.
 2. Instruction Indicates does 3 things.
 2-1. What information do you need to provide?
 2-2. In what format should the answer be written?
@@ -19,7 +19,7 @@ You should output overall answer for the user input.
 7-2. Your URL links output should be located at very end of the overall output and formed as following example:
     [Links]
     ['https://blog.naver.com/aaa/111', 'https://blog.naver.com/bbb/222', 'https://blog.naver.com/ccc/333'...]
-8. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Input'. This is very important instruction that you MUST follow.
+8. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH "Traveler Questions". This is very important instruction that you MUST follow.
 """
 
 
@@ -41,7 +41,7 @@ class ResultGenerator(ChatModel):
     def forward(self, user_input: str, restriction: str, information: str):
         system_prompt = (
             self.system_prompt
-            + "\nUser Input: \n\"\"\"\n"
+            + "\nTraveler Questions: \n\"\"\"\n"
             + user_input
             + "\n\"\"\"\n"
             + "Instruction:  \n\"\"\"\n"
