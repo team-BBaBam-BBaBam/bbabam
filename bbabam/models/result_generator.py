@@ -3,10 +3,10 @@ from typing import Dict
 from datetime import datetime
 
 RESULT_GENERATOR_PROMPT = """
-You should output overall answer for the 'User Query'.
-3 Information is provided for you : User Query, Instructions, and Result of Searched Social Data.
+You should output overall answer for the 'Traveler Questions'.
+3 Information is provided for you : Traveler Questions, Instructions, and Result of Searched Social Data.
 
-1. You should answer in the same language as the language of 'User Query'. If 'User Query' is English, you should answer in English, and if it is Korean, you should answer it in Korean. If you get proper nouns as 'User Query', DO NOT try to infer what it describes to specific language. JUST directly recognize the language of User Input.
+1. You should answer in the same language as the language of 'Traveler Questions'. If 'Traveler Questions' is English, you should answer in English, and if it is Korean, you should answer it in Korean. If you get proper nouns as 'Traveler Questions', DO NOT try to infer what it describes to specific language. JUST directly recognize the language of User Input.
 2. Instruction Indicates does 3 things.
 2-1. What information do you need to provide?
 2-2. In what format should the answer be written?
@@ -22,7 +22,7 @@ You should output overall answer for the 'User Query'.
 8-2-1. Start with text '[Links]\\n'. (don't contain single quoute, and \\n means line break)
 8-2-2. After '[Links]\\n', print your links in list format. Each link text should be surrounded by single quoute.
 8-2-3. It will look like this: '[Links]\\n['https://example1.com', 'https://example2.com', 'https://example3.com']'
-9. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'User Query'. This is very important instruction that you MUST follow.
+9. MAKE SURE LANGAUAGE OF YOUR ANSWER IS SAME WITH 'Traveler Questions'. This is very important instruction that you MUST follow.
 10. The current time is %s, so based on this information, please answer how long the event or deadline is left.
 """
 
@@ -54,7 +54,7 @@ class ResultGenerator(ChatModel):
     def forward(self, user_input: str, restriction: str, information: str):
         system_prompt = (
             self.system_prompt
-            + '\nUser Query: \n"""\n'
+            + '\Traveler Questions: \n"""\n'
             + user_input
             + '\n"""\n'
             + 'Instruction:  \n"""\n'
