@@ -18,8 +18,6 @@ socketio = SocketIO(
     app,
     cors_allowed_origins="*",
     async_mode="threading",
-    logger=True,
-    engineio_logger=True,
 )
 
 with open("server/picture.json", "r") as file:
