@@ -9,6 +9,7 @@ from bbabam.settings.errors import (
     WrongAccessError,
 )
 
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
 app.config["CORS_HEADERS"] = "Content-Type"
@@ -19,7 +20,7 @@ socketio = SocketIO(
     cors_allowed_origins="*",
     async_mode="threading",
     logger=True,
-    engineio_logger=True,
+    # engineio_logger=True,
 )
 
 with open("server/picture.json", "r") as file:
@@ -77,33 +78,32 @@ def socket_start(data):
     print(room_id)
     if not room_id or room_id == "":
         return emit("error", "Cloud not find SessionId")
-    try:
-        return run_bbabam(
-            user_input,
-            verbose=False,
-            socket_module={
-                "emit": socketio,
-                "app": app,
-                "namespace": "/search",
-                "room": room_id,
-            },
-        )
-    except ChatExceptionError as error:
-        print("error code 1", error)
-        emit(
-            "error",
-            {"err_code": 1, "err_msg": str(error)},
-            room=room_id,
-            namespace="/search",
-        )
-    except Exception as error:
-        print(error)
-        emit(
-            "error",
-            {"err_code": 0, "err_msg": str(error)},
-            room=room_id,
-            namespace="/search",
-        )
+    run_bbabam(
+        user_input,
+        verbose=False,
+        socket_module={
+            "emit": socketio,
+            "app": app,
+            "namespace": "/search",
+            "room": room_id,
+        },
+    )
+    # except ChatExceptionError as error:
+    #     print("error code 1", error)
+    #     emit(
+    #         "error",
+    #         {"err_code": 1, "err_msg": str(error)},
+    #         room=room_id,
+    #         namespace="/search",
+    #     )
+    # except Exception as error:
+    #     print(error)
+    #     emit(
+    #         "error",
+    #         {"err_code": 0, "err_msg": str(error)},
+    #         room=room_id,
+    #         namespace="/search",
+    #     )
 
 
 if __name__ == "__main__":

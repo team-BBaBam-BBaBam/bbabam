@@ -21,7 +21,7 @@ from bbabam.flow.tasks.database import DatabaseManager
 from bbabam.flow.tasks.place_crawler import PlaceCrawler
 from bbabam.flow.tasks.place_crawler import PathCrawler
 from bbabam.flow.tasks.associated_search import AssociatedSearchGenerator
-from bbabam.flow.tasks.socket_emit import ScoketEmit
+from bbabam.flow.tasks.socket_emit import ScoketEmit, ResultSocketEmit
 
 
 class FlowConfigurations:
@@ -75,9 +75,7 @@ def start_flow(
                                 chunk_overlap=configurations.chunk_overlap,
                             ),
                             RelevanceEstimator(),
-                            Merger(
-                                max_contents_token_count=configurations.max_contents_token_count
-                            ),
+                            Merger(max_contents_token_count=configurations.max_contents_token_count),
                         ],
                     ),
                     RestrictionGenerator(),
@@ -87,10 +85,11 @@ def start_flow(
                 "generation",
                 [
                     ResultGenerator(),
-                    ScoketEmit(
+                    ResultSocketEmit(
                         socket_module=socket_module,
-                        payloads={"urls": DataNames.LINKS, "result": DataNames.RESULT},
-                        emit_event="finish_generation",
+                        start_emit_event="start_generation",
+                        end_emit_event="end_generation",
+                        emit_event="generation",
                     ),
                     ParallelRunner(
                         "Place Data Generation",
@@ -146,9 +145,7 @@ def start_flow(
     )
 
     # Run Flow
-    flow.initialize_task(
-        data_store.generate_new_task_id(), on_state_changed, data_store
-    )
+    flow.initialize_task(data_store.generate_new_task_id(), on_state_changed, data_store)
     flow.run()
 
     return data_store

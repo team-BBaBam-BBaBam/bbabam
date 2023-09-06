@@ -25,6 +25,7 @@ Conditions:
 12-3. It will look like this: 'Instruction:\\n\"\"\"\\n...\\n\"\"\"'
 12-4. Do not print other descriptions that violate the above format.
 12-5. You have to answer only once.
+13. Write answer in less than 100 words.
 """
 
 
@@ -35,7 +36,7 @@ class RestrictionInformationGenerator(ChatModel):
 
     def __init__(
         self,
-        model_type: str = "gpt-4",
+        model_type: str = "gpt-3.5",
         temperature: float = 0.7,
         stable: bool = True,
         more_tokens: bool = False,
@@ -61,9 +62,7 @@ class RestrictionInformationGenerator(ChatModel):
             return False, ""
 
         processed_response = raw_response[len("Instruction:") :].strip()
-        if not processed_response.startswith('"""') or not processed_response.endswith(
-            '"""'
-        ):
+        if not processed_response.startswith('"""') or not processed_response.endswith('"""'):
             return False, ""
 
         processed_response = processed_response[3:-3].strip()

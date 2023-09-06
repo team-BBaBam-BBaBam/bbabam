@@ -6,9 +6,11 @@ The answer of the user input was attributed to user input. Simply you can unders
 Your task is to output the associated search keyword and following questions for it based on user input and the answer of the user input.
 
 1. You should output it in language same as 'user input'. For example, if the user input was "仁川空港に最も近い両替所は？", You should output "{'為替レート': ['最近円とウォン間の為替レートは？', ...]}"
-2. Output should be formed as [{"Keyword1": ["Question1-1, Question1-2..."]}, {"Keyword2": ["Question2-1, Question2-2..."]}, ...]
+2. Output should be formed as [{"Keyword1": ["Question1-1", "Question1-2"...]}, {"Keyword2": ["Question2-1", "Question2-2"...]}, ...]
 2-1. Keyword has to be word (can be nouns, verbs...), and Questions have to be sentence. So you are composing lists of dictionary that implies words(string) as a key, sentence(also string) as a value.
-3. You should remind that the users are to travel South Korea. You better output results that can surely acceptable correlation between them(input) and generated dictionary(Your output) on traveler's perspective.
+3. Recommend up to 3 keywords per keyword.
+4. Make sure that the search word doesn't exceed 50 characters.
+5. You should remind that the users are to travel South Korea. You better output results that can surely acceptable correlation between them(input) and generated dictionary(Your output) on traveler's perspective.
 """
 
 
@@ -25,9 +27,7 @@ class AssoSearchGenerator(ChatModel):
         return "Associated Searchs Generation"
 
     def forward(self, user_input: str, result: str):
-        system_prompt = (
-            self.system_prompt + '\nUser Input: \n"""\n' + user_input + '\n"""\n'
-        )
+        system_prompt = self.system_prompt + '\nUser Input: \n"""\n' + user_input + '\n"""\n'
 
         user_input = 'Result of Searched Data: \n"""\n' + result + '\n"""\n'
 

@@ -17,6 +17,8 @@ CHATGPT_4_MODEL_32K_STABLE = "gpt-4-32k-0613"
 WORD_EMBEDDING_MODEL = "text-embedding-ada-002"
 MessageType = List[Dict[str, str]]
 
+OPENROUTER_REFERRER = "https://github.com/alonsosilvaallende/chatplotlib-openrouter"
+
 
 def getModelName(model_type: str, stable: bool = False, more_tokens: bool = False):
     # 모델을 편하게 선택하기 위한 클래스
@@ -56,14 +58,17 @@ class ReturnType:
 
 
 class OpenaiProvider:
-    def get(self, messages: MessageType, model, temperature):
+    def get(self, messages: MessageType, model, temperature, stream: bool = False):
         completion = openai.ChatCompletion.create(
             model=model,
             messages=messages,
             temperature=temperature,
+            headers={"HTTP-Referer": OPENROUTER_REFERRER},
+            stream=stream,
         )
+        print(completion)
         return ReturnType(
-            respond=completion.choices[0].message.content,
-            message=completion.choices[0].message,
-            info=completion.usage,
+            respond=completion if stream else completion.choices[0].message.content,
+            message=None if stream else completion.choices[0].message,
+            info={} if stream else completion.usage,
         )

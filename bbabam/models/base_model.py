@@ -43,7 +43,7 @@ class ChatModel:
         self.system_prompt = system_prompt
 
         if provider == "openai":
-            from .provider.openai import OpenaiProvider, getModelName
+            from .provider.openai_api import OpenaiProvider, getModelName
 
             self.getModelName = getModelName
             self.provider = OpenaiProvider()
@@ -55,8 +55,8 @@ class ChatModel:
 
         self.model = self.getModelName(model_type, stable, more_tokens)
 
-    def __get_provider(self, messages: MessageType):
-        return self.provider.get(messages, self.model, self.temperature)
+    def __get_provider(self, messages: MessageType, stream: bool = False):
+        return self.provider.get(messages, self.model, self.temperature, stream)
 
     def create_default_message(self, user_input: str) -> MessageType:
         return self.create_message(self.system_prompt, user_input)
@@ -70,22 +70,20 @@ class ChatModel:
             },
         ]
 
-    def get_reply(self, messages: MessageType) -> ChatModelRespondType:
-        respond = self.__get_provider(messages)
+    def get_reply(self, messages: MessageType, stream: bool = False) -> ChatModelRespondType:
+        respond = self.__get_provider(messages, stream)
         return ChatModelRespondType(
             respond=respond.respond,
             respond_with_message=[*messages, [respond.message]],
             info={**respond.info},
         )
 
-    def forward(
-        self, user_input: str, get_system_prompt: Union[Callable[[], str], None] = None
-    ) -> ChatModelRespondType:
+    def forward(self, user_input: str, get_system_prompt: Union[Callable[[], str], None] = None, stream: bool = False) -> ChatModelRespondType:
         if get_system_prompt is None:
             message = self.create_default_message(user_input)
         else:
             message = self.create_message(get_system_prompt(), user_input)
-        reply = self.get_reply(message)
+        reply = self.get_reply(message, stream)
         return reply
 
 
@@ -94,9 +92,7 @@ class OpenAIEmbeddingModel:
     # 인풋문장을 넣어주면 출력되는 get_embedding 함수가 있음.
 
     def get_embeddings(self, input):
-        embeddings = openai.Embedding.create(
-            model="text-embedding-ada-002", input=input
-        )
+        embeddings = openai.Embedding.create(model="text-embedding-ada-002", input=input)
         return embeddings
 
     def get_vector(self, input):

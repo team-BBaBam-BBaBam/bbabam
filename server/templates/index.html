@@ -62,6 +62,9 @@
         socket.on('poi_generation', (data) => { appendMessage('POI Generation', data) });
         socket.on('path_generation', (data) => { appendMessage('Path Generation', data) });
         socket.on('associated_ketwords', (data) => { appendMessage('Associated Keywords', data) });
+        socket.on('start_generation', (data) => { appendMessage('Start Generation', data) });
+        socket.on('generation', (data) => { appendMessage('Generation', data) });
+        socket.on('end_generation', (data) => { appendMessage('End', data) });
         socket.on('error', (data) => { appendMessage('error', data) });
     </script>
     <!-- Import jQuery and then materialize.js -->

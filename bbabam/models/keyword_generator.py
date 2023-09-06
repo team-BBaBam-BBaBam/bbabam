@@ -28,9 +28,7 @@ class KeywordGenerator(ChatModel):
         stable: bool = True,
         more_tokens: bool = False,
     ):
-        super().__init__(
-            model_type, KEYWORD_GENERATOR_PROMPT, temperature, stable, more_tokens
-        )
+        super().__init__(model_type, KEYWORD_GENERATOR_PROMPT, temperature, stable, more_tokens)
 
     def __repr__(self) -> str:
         return "Web-Search Keyword Generation Module"
@@ -38,9 +36,7 @@ class KeywordGenerator(ChatModel):
     def forward(self, user_input: str, keyword_num: int = 5):
         reply = super().forward(
             f"Request in natural language: {user_input}",
-            get_system_prompt=lambda: self.system_prompt.replace(
-                "<keyword_num>", str(keyword_num)
-            ),
+            get_system_prompt=lambda: self.system_prompt.replace("<keyword_num>", str(keyword_num)),
         )
 
         wlist = ast.literal_eval(reply.respond)
